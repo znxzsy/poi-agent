@@ -1,22 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>poi-agent - Multi-Agent Adversarial Testing Framework</title>
-    <meta name="description" content="A harness engineering framework for content risk control using Teacher/Student dual-agent adversarial training">
+    <title>poi-agent — 多智能体对抗沙箱</title>
+    <meta name="description" content="基于Harness工程的内容风控框架，通过 Teacher/Student 双智能体对抗训练，实现POI数据安全的自我进化防御">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
         <div class="container">
-            <a href="#" class="logo">poi-agent</a>
+            <a href="#" class="logo">poi<span>-</span>agent</a>
             <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#architecture">Architecture</a></li>
-                <li><a href="#models">Models</a></li>
-                <li><a href="#agents">Agents</a></li>
+                <li><a href="#home">首页</a></li>
+                <li><a href="#architecture">架构</a></li>
+                <li><a href="#models">模型</a></li>
+                <li><a href="#scenarios">场景</a></li>
+                <li><a href="#defense">防御</a></li>
+                <li><a href="#evolution">进化引擎</a></li>
                 <li><a href="https://github.com/znxzsy/poi-agent" target="_blank">GitHub</a></li>
             </ul>
         </div>
@@ -26,172 +28,399 @@
     <section id="home" class="hero">
         <div class="container">
             <h1>poi-agent</h1>
-            <h2>Multi-Agent Adversarial Testing Framework</h2>
-            <p class="tagline">Harness Engineering &times; Content Risk Control &times; Self-Evolving Defense</p>
+            <h2>多智能体对抗沙箱</h2>
+            <p class="tagline">Harness 工程 &times; POI 内容风控 &times; RL 自我进化防御</p>
             <div class="hero-buttons">
-                <a href="#agents" class="btn btn-primary">Quick Start</a>
+                <a href="#demo" class="btn btn-primary">在线体验</a>
                 <a href="https://github.com/znxzsy/poi-agent" class="btn btn-secondary">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                    View Source
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                    查看源码
                 </a>
             </div>
             <div class="hero-stats">
                 <div class="stat">
-                    <span class="stat-number">31</span>
-                    <span class="stat-label">Unit Tests</span>
+                    <span class="stat-number">54</span>
+                    <span class="stat-label">单元测试</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-number">2</span>
-                    <span class="stat-label">Agent Roles</span>
+                    <span class="stat-number">11</span>
+                    <span class="stat-label">攻击场景</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-number">3</span>
-                    <span class="stat-label">Harness Pillars</span>
+                    <span class="stat-number">10</span>
+                    <span class="stat-label">防御策略</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-number">4D</span>
-                    <span class="stat-label">Cost Model</span>
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">防御模型</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Architecture -->
-    <section id="architecture" class="architecture">
+    <!-- 系统架构 -->
+    <section id="architecture" class="section">
         <div class="container">
-            <h2 class="section-title">Architecture</h2>
-            <p class="section-desc">Three-layer harness engineering: Constrain &rarr; Verify &rarr; Correct</p>
+            <h2 class="section-title">系统架构</h2>
+            <p class="section-subtitle">三层 Harness 工程体系：约束 → 验证 → 修正</p>
             <div class="arch-diagram-image">
-                <img src="docs/system_architecture.png" alt="System Architecture Diagram" style="width:100%;max-width:1200px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                <img src="docs/system_architecture.png" alt="系统架构图">
             </div>
-            <div class="arch-diagram" style="margin-top:30px;">
+            <div style="margin-top:2rem;">
                 <div class="arch-layer constrain">
-                    <h3>Constrain (Constraint Layer)</h3>
+                    <h3>约束层 — 定义对抗边界</h3>
                     <div class="arch-grid">
                         <div class="arch-box">
-                            <h4>Teacher Agent</h4>
-                            <p>Attacker role &middot; Profit-driven &middot; Risk-aware</p>
+                            <h4>Teacher Agent（攻击方）</h4>
+                            <p>模拟黑灰产从业者，基于收益-成本-风险决策模型，持续生成对抗样本</p>
                         </div>
                         <div class="arch-box">
-                            <h4>Student Agent</h4>
-                            <p>Defender role &middot; Compliance-first &middot; FP &le; 1%</p>
+                            <h4>Student Agent（防御方）</h4>
+                            <p>模拟风控专家，合规优先，误拦率 ≤ 1% 硬约束，处置时效 ≤ 24h</p>
                         </div>
                     </div>
                 </div>
                 <div class="arrow-down">&darr;</div>
                 <div class="arch-layer verify">
-                    <h3>Verify (Verification Layer)</h3>
+                    <h3>验证层 — 多维检测策略</h3>
                     <div class="metrics-grid">
                         <div class="metric-box">
-                            <span class="metric-value">detection rate</span>
-                            <span class="metric-label">Strategy effectiveness threshold</span>
+                            <span class="metric-value">检测率</span>
+                            <span class="metric-label">策略有效性阈值</span>
                         </div>
                         <div class="metric-box">
-                            <span class="metric-value">false positive</span>
-                            <span class="metric-label">Hard constraint: &le; 1%</span>
+                            <span class="metric-value">误报率 ≤ 1%</span>
+                            <span class="metric-label">硬性约束</span>
                         </div>
                         <div class="metric-box">
-                            <span class="metric-value">profitability</span>
-                            <span class="metric-label">Cost-revenue analysis for attacks</span>
+                            <span class="metric-value">期望收益</span>
+                            <span class="metric-label">攻击成本-收益分析</span>
                         </div>
                     </div>
                 </div>
                 <div class="arrow-down">&darr;</div>
                 <div class="arch-layer correct">
-                    <h3>Correct (Feedback Layer)</h3>
+                    <h3>修正层 — 反馈闭环</h3>
                     <div class="arch-grid">
-                        <div class="arch-box">Adversarial sample generation</div>
-                        <div class="arch-box">Vulnerability discovery &amp; fix</div>
-                        <div class="arch-box">Iterative convergence</div>
+                        <div class="arch-box">对抗样本自动生成</div>
+                        <div class="arch-box">漏洞发现与修复</div>
+                        <div class="arch-box">RL 训练数据产出</div>
+                        <div class="arch-box">策略权重自适应更新</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Cost Model -->
-    <section id="models" class="concept">
+    <!-- 核心模型 -->
+    <section id="models" class="section section-alt">
         <div class="container">
-            <h2 class="section-title">Core Models</h2>
-            <p class="section-desc">Four-dimensional cost-revenue-risk framework for adversarial decision modeling</p>
+            <h2 class="section-title">核心模型</h2>
+            <p class="section-subtitle">四维成本-收益-风险框架，量化对抗决策</p>
             <div class="arch-diagram-image">
-                <img src="docs/cost_model.png" alt="Cost Model Diagram" style="width:100%;max-width:1000px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                <img src="docs/cost_model.png" alt="成本模型图">
             </div>
-            <div class="concept-grid" style="margin-top:30px;">
+            <div class="concept-grid" style="margin-top:2rem;">
                 <div class="concept-card">
-                    <div class="concept-icon">E</div>
-                    <h3>EvilCostModel</h3>
-                    <p>Four-dimensional cost model for quantifying adversarial effort:</p>
+                    <div class="concept-icon">C</div>
+                    <h3>四维作恶成本模型</h3>
+                    <p>从四个维度量化黑灰产攻击成本：</p>
                     <ul class="concept-list">
-                        <li><strong>Time:</strong> registration, operation, waiting (minutes)</li>
-                        <li><strong>Money:</strong> account, device, IP cost (yuan)</li>
-                        <li><strong>Technology:</strong> bypass difficulty, tool dev (1-10 scale)</li>
-                        <li><strong>Account:</strong> ban rate, reuse count</li>
+                        <li><strong>时间成本</strong> — 注册 / 操作 / 等待（分钟）</li>
+                        <li><strong>资金成本</strong> — 账号 / 设备 / IP（元）</li>
+                        <li><strong>技术成本</strong> — 绕过难度 / 工具开发（1-10级）</li>
+                        <li><strong>账号成本</strong> — 封号率 / 复用次数</li>
                     </ul>
                 </div>
                 <div class="concept-card">
                     <div class="concept-icon">&pi;</div>
-                    <h3>EvilRevenue</h3>
-                    <p>Expected revenue calculation:</p>
+                    <h3>期望收益模型</h3>
+                    <p>攻击方的期望收益计算：</p>
                     <div class="formula-box">
-                        <p>E[revenue] = R&subsoc;&times;P&subsoc; - R&subf;&times;P&subf;</p>
+                        E[revenue] = R&subsuccess;&times;P&subsuccess; - R&subfailure;&times;P&subfailure;
                     </div>
-                    <p style="margin-top:1rem;">Where R&subsoc; is success revenue, P&subsoc; is success rate, R&subf; is failure loss, P&subf; is failure rate.</p>
+                    <p style="margin-top:1rem;font-size:0.85rem;color:var(--text-secondary);">
+                        当 期望收益 &gt; 总成本 + 风险成本 时，攻击有利可图
+                    </p>
                 </div>
                 <div class="concept-card">
                     <div class="concept-icon">R</div>
-                    <h3>RiskCost</h3>
-                    <p>Risk-adjusted cost for adversarial decisions:</p>
+                    <h3>风险成本模型</h3>
+                    <p>综合封号与法律风险：</p>
                     <div class="formula-box">
-                        <p>E[risk] = P&subb;&times;L&subb; + P&subl;&times;L&subl;</p>
+                        E[risk] = P&subban;&times;L&subban; + P&sublegal;&times;L&sublegal;
                     </div>
-                    <p style="margin-top:1rem;">Where P&subb;/L&subb; is ban probability/loss, P&subl;/L&subl; is legal risk/loss.</p>
+                    <p style="margin-top:1rem;font-size:0.85rem;color:var(--text-secondary);">
+                        平台目标：作恶成本 + 风险成本 &gt; 作恶收益
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Agents -->
-    <section id="agents" class="scenarios">
+    <!-- 攻击场景 -->
+    <section id="scenarios" class="section">
         <div class="container">
-            <h2 class="section-title">Agents</h2>
-            <p class="section-desc">Teacher/Student dual-agent architecture with adversarial feedback loop</p>
-            <div class="arch-diagram-image">
-                <img src="docs/adversarial_flow.png" alt="Adversarial Flow Diagram" style="width:100%;max-width:1000px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);margin-bottom:2rem;">
-            </div>
-            <div class="concept-grid">
-                <div class="concept-card">
-                    <div class="concept-icon" style="color:#E74C3C;">&#x1F534;</div>
-                    <h3>TeacherAgent (Attacker)</h3>
-                    <p>Simulates adversarial behavior with profit-driven decision making:</p>
-                    <ul class="concept-list">
-                        <li><code>select_attack()</code> &mdash; argmax(revenue - cost - risk)</li>
-                        <li><code>generate_adversarial_sample()</code> &mdash; produce attack details</li>
-                        <li><code>evolve_attack()</code> &mdash; adapt based on defense feedback</li>
-                    </ul>
+            <h2 class="section-title">攻击场景</h2>
+            <p class="section-subtitle">基于真实对抗数据沉淀，覆盖 P 图、AIGC、复合攻击等 11 种场景</p>
+            <div class="scenarios-grid">
+                <div class="scenario-card">
+                    <span class="type-badge type-info">信息篡改</span>
+                    <h4>名称篡改 - 品牌蹭流</h4>
+                    <p>改为相似或知名品牌名称，蹭取流量</p>
+                    <div class="scenario-meta">
+                        <span>历史 156 次</span>
+                        <span class="scenario-rate" style="color:#c0392b;">检测率 64.7%</span>
+                    </div>
                 </div>
-                <div class="concept-card">
-                    <div class="concept-icon" style="color:#3498DB;">&#x1F535;</div>
-                    <h3>StudentAgent (Defender)</h3>
-                    <p>Simulates defense with compliance-first decision making:</p>
-                    <ul class="concept-list">
-                        <li><code>select_defense()</code> &mdash; match strategies to attack type</li>
-                        <li><code>defense_decision()</code> &mdash; BLOCK/PASS based on confidence</li>
-                        <li><code>learn_from_attack()</code> &mdash; generate new defense strategy</li>
-                    </ul>
+                <div class="scenario-card">
+                    <span class="type-badge type-info">信息篡改</span>
+                    <h4>电话篡改 - 引流欺诈</h4>
+                    <p>改为引流电话，截获客户咨询</p>
+                    <div class="scenario-meta">
+                        <span>历史 234 次</span>
+                        <span class="scenario-rate" style="color:#c0392b;">检测率 58.1%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-info">信息篡改</span>
+                    <h4>地址微调 - 位置劫持</h4>
+                    <p>添加楼层/门牌号，实现位置劫持</p>
+                    <div class="scenario-meta">
+                        <span>历史 312 次</span>
+                        <span class="scenario-rate" style="color:#c9a22e;">检测率 44.9%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-info">信息篡改</span>
+                    <h4>坐标精确偏移</h4>
+                    <p>偏移到竞品门口，覆盖竞品位置</p>
+                    <div class="scenario-meta">
+                        <span>历史 34 次</span>
+                        <span class="scenario-rate" style="color:#6a9e7e;">检测率 85.3%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-info">信息篡改</span>
+                    <h4>谐音字蹭名</h4>
+                    <p>星巴克→星巴可，规避品牌检测</p>
+                    <div class="scenario-meta">
+                        <span>历史 87 次</span>
+                        <span class="scenario-rate" style="color:#6a9e7e;">检测率 72.4%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-image">图像伪造</span>
+                    <h4>门头照 P 图</h4>
+                    <p>PS 篡改招牌文字/LOGO</p>
+                    <div class="scenario-meta">
+                        <span>历史 43 次</span>
+                        <span class="scenario-rate" style="color:#6a9e7e;">检测率 76.7%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-image">图像伪造</span>
+                    <h4>AIGC生成虚假照片</h4>
+                    <p>Midjourney/SD 生成虚假门店照</p>
+                    <div class="scenario-meta">
+                        <span>历史 28 次</span>
+                        <span class="scenario-rate" style="color:#6a9e7e;">检测率 67.9%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-image">图像伪造</span>
+                    <h4>门头照移除</h4>
+                    <p>移除门头照，规避审核核实</p>
+                    <div class="scenario-meta">
+                        <span>历史 89 次</span>
+                        <span class="scenario-rate" style="color:#6a9e7e;">检测率 71.9%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-compound">复合攻击</span>
+                    <h4>AIGC + 名称篡改</h4>
+                    <p>组合拳绕过单一策略检测</p>
+                    <div class="scenario-meta">
+                        <span>历史 19 次</span>
+                        <span class="scenario-rate" style="color:#6a9e7e;">检测率 78.9%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-compound">复合攻击</span>
+                    <h4>多字段全面篡改</h4>
+                    <p>同时改名+地址+坐标+电话+图片</p>
+                    <div class="scenario-meta">
+                        <span>历史 15 次</span>
+                        <span class="scenario-rate" style="color:#6a9e7e;">检测率 86.7%</span>
+                    </div>
+                </div>
+                <div class="scenario-card">
+                    <span class="type-badge type-compound">复合攻击</span>
+                    <h4>地址+坐标联合欺骗</h4>
+                    <p>两者同时修改保持一致</p>
+                    <div class="scenario-meta">
+                        <span>历史 11 次</span>
+                        <span class="scenario-rate" style="color:#6a9e7e;">检测率 90.9%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 防御策略 -->
+    <section id="defense" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">防御策略</h2>
+            <p class="section-subtitle">4 大模型协同，10 项防御策略覆盖全攻击面</p>
+            <table class="strategies-table">
+                <thead>
+                    <tr>
+                        <th>策略名称</th>
+                        <th>所属模型</th>
+                        <th>检测规则数</th>
+                        <th>检测率</th>
+                        <th>误报率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>名称变更检测</strong></td>
+                        <td><span class="model-tag model-tamper">篡改检测</span></td>
+                        <td>3</td>
+                        <td><span class="rate-bar" style="width:85px;"></span>85%</td>
+                        <td>0.80%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>电话风险评估</strong></td>
+                        <td><span class="model-tag model-tamper">篡改检测</span></td>
+                        <td>3</td>
+                        <td><span class="rate-bar" style="width:72px;"></span>72%</td>
+                        <td>1.20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>地址变更检测</strong></td>
+                        <td><span class="model-tag model-tamper">篡改检测</span></td>
+                        <td>3</td>
+                        <td><span class="rate-bar" style="width:68px;"></span>68%</td>
+                        <td>1.50%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>坐标漂移检测</strong></td>
+                        <td><span class="model-tag model-tamper">篡改检测</span></td>
+                        <td>2</td>
+                        <td><span class="rate-bar" style="width:92px;"></span>92%</td>
+                        <td>0.30%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>门头照缺失检测</strong></td>
+                        <td><span class="model-tag model-image">图像检测</span></td>
+                        <td>3</td>
+                        <td><span class="rate-bar" style="width:91px;"></span>91%</td>
+                        <td>0.50%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AIGC 图像检测</strong></td>
+                        <td><span class="model-tag model-image">图像检测</span></td>
+                        <td>4</td>
+                        <td><span class="rate-bar" style="width:74px;"></span>74%</td>
+                        <td>1.80%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>P 图篡改检测</strong></td>
+                        <td><span class="model-tag model-image">图像检测</span></td>
+                        <td>4</td>
+                        <td><span class="rate-bar" style="width:71px;"></span>71%</td>
+                        <td>2.00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UID 画像风险评估</strong></td>
+                        <td><span class="model-tag model-batch">批量检测</span></td>
+                        <td>4</td>
+                        <td><span class="rate-bar" style="width:78px;"></span>78%</td>
+                        <td>1.00%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>多字段联合变更检测</strong></td>
+                        <td><span class="model-tag model-tamper">篡改检测</span></td>
+                        <td>4</td>
+                        <td><span class="rate-bar" style="width:83px;"></span>83%</td>
+                        <td>1.20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>地理围栏一致性检测</strong></td>
+                        <td><span class="model-tag model-tamper">篡改检测</span></td>
+                        <td>4</td>
+                        <td><span class="rate-bar" style="width:88px;"></span>88%</td>
+                        <td>0.80%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 进化引擎 -->
+    <section id="evolution" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">进化引擎</h2>
+            <p class="section-subtitle">从对抗数据自动生成 RL 训练集，策略权重自适应更新</p>
+
+            <div class="evolution-flow">
+                <div class="evolution-step">
+                    <div class="step-icon">⚔️</div>
+                    <h4>对抗</h4>
+                    <p>Teacher 攻击<br>Student 防御</p>
+                </div>
+                <div class="evolution-step">
+                    <div class="step-icon">🔍</div>
+                    <h4>发现</h4>
+                    <p>比对结果<br>定位漏洞</p>
+                </div>
+                <div class="evolution-step">
+                    <div class="step-icon">🧬</div>
+                    <h4>生成</h4>
+                    <p>场景库增强<br>组装 RL 样本</p>
+                </div>
+                <div class="evolution-step">
+                    <div class="step-icon">📊</div>
+                    <h4>训练</h4>
+                    <p>策略梯度<br>更新权重</p>
+                </div>
+                <div class="evolution-step">
+                    <div class="step-icon">🔄</div>
+                    <h4>闭环</h4>
+                    <p>权重回写<br>下次更强</p>
+                </div>
+            </div>
+
+            <div class="rl-features">
+                <div class="rl-feature">
+                    <h4>State 特征向量</h4>
+                    <p>攻击类型 + 场景 + 变更字段 + <code>期望收益</code> + <code>攻击成本</code> + <code>UID 风险</code>，从场景库自动提取真实数据</p>
+                </div>
+                <div class="rl-feature">
+                    <h4>4 模型打分</h4>
+                    <p>图像检测 · 批量检测 · 篡改检测 · 资质核验，前缀匹配策略→模型映射，新增策略自动适配</p>
+                </div>
+                <div class="rl-feature">
+                    <h4>Reward 设计</h4>
+                    <p>正确拦截 <code>+0.71~0.92</code> | 漏放 <code>-2.15~-2.55</code> | 误拦 <code>-0.50</code> | 漏洞 <code>-0.05~-0.50</code></p>
+                </div>
+                <div class="rl-feature">
+                    <h4>策略梯度更新</h4>
+                    <p><code>w_i += lr × reward × score_i</code>，REINFORCE 简化版，模型贡献正奖励则提升权重，反之降低</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Demo -->
-    <section id="demo" class="demo">
+    <section id="demo" class="section section-dark" style="padding-top:80px;">
         <div class="container">
-            <h2 class="section-title">Demo</h2>
+            <h2 class="section-title">在线演示</h2>
             <div class="demo-container">
                 <div class="terminal">
                     <div class="terminal-header">
-                        <span class="terminal-title">poi-agent - adversarial sandbox</span>
+                        <span class="terminal-title">poi-agent — 对抗沙箱</span>
                         <div class="terminal-buttons">
                             <span class="btn-red"></span>
                             <span class="btn-yellow"></span>
@@ -202,45 +431,36 @@
                         <pre id="terminal-output">
 <span class="prompt">$</span> python main.py
 
-╔════════════════════════════════════════════════╗
-║  poi-agent - adversarial testing framework     ║
-║  Harness Engineering: Constrain-Verify-Correct ║
-╚════════════════════════════════════════════════╝
+═══ POI 风控对抗沙箱 ═══
+Harness 工程：约束 → 验证 → 修正
 
-Running 10 adversarial rounds...
+正在运行对抗演练...
 
-============================================================
-  Round 1
-============================================================
+[攻击方] TeacherAgent 生成对抗样本...
+  → 名称篡改-品牌蹭流 (BGC)
+    期望收益：￥2475.00 | 攻击成本：￥155.30
+  → AIGC生成虚假照片 (BGC)
+    期望收益：￥2685.00 | 攻击成本：￥357.00
 
-[Phase 1] Teacher generates adversarial samples...
+[防御方] StudentAgent 执行检测...
+  触发策略：名称变更检测 (置信度: 0.85)
+  触发策略：AIGC 图像检测 (置信度: 0.71)
 
-  Attack: AIGC Generated Image (UGC)
-  Expected revenue: ￥7000.00 | Profitable: True
-
-  Attack: UID Batch Operations (UGC)
-  Expected revenue: ￥29600.00 | Profitable: True
-
-[Phase 2] Student defends...
-
-  ┌─────────────────────────────────────────┐
-  │  Attacks blocked: 2 | Defense passed: 0 │
-  │  Vulnerabilities found: 0              │
-  │  Miss rate: 0.00% | FP rate: 0.50%    │
-  └─────────────────────────────────────────┘
-
+[进化引擎] 生成 RL 训练样本...
+  → 样本 1: TP | reward=+0.91 | 模型=image/tamper
+  → 样本 2: TP | reward=+0.71 | 模型=image
                         </pre>
                     </div>
                 </div>
                 <div class="demo-controls">
-                    <h3>Interactive Demo</h3>
+                    <h3>交互式演示</h3>
                     <div class="control-group">
-                        <button class="demo-btn" onclick="runDemo('attack')">Teacher Attack</button>
-                        <button class="demo-btn" onclick="runDemo('defense')">Student Defense</button>
-                        <button class="demo-btn" onclick="runDemo('result')">Round Result</button>
+                        <button class="demo-btn" onclick="runDemo('attack')">🔴 Teacher 攻击</button>
+                        <button class="demo-btn" onclick="runDemo('defense')">🔵 Student 防御</button>
+                        <button class="demo-btn" onclick="runDemo('evolution')">🟡 进化引擎</button>
                     </div>
                     <div class="install-guide">
-                        <h4>Install & Run</h4>
+                        <h4>安装运行</h4>
                         <code>git clone https://github.com/znxzsy/poi-agent.git</code>
                         <code>cd poi-agent</code>
                         <code>python main.py</code>
@@ -251,21 +471,22 @@ Running 10 adversarial rounds...
         </div>
     </section>
 
-    <!-- Footer -->
+    <!-- 页脚 -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-left">
-                    <p>poi-agent - Multi-Agent Adversarial Testing Framework</p>
+                    <p>poi-agent — 多智能体对抗沙箱 · Harness 工程 × 内容风控 × 自我进化</p>
                 </div>
                 <div class="footer-right">
                     <a href="https://github.com/znxzsy/poi-agent" target="_blank">GitHub</a>
-                    <a href="#models">Models</a>
-                    <a href="#agents">Agents</a>
+                    <a href="#models">模型</a>
+                    <a href="#scenarios">场景</a>
+                    <a href="#defense">防御</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>MIT License.</p>
+                <p>MIT License</p>
             </div>
         </div>
     </footer>
