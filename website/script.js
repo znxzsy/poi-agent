@@ -1,64 +1,63 @@
-// POI Harness 对抗沙箱 - 网站交互
 function runDemo(type) {
     const output = document.getElementById('terminal-output');
     const demos = {
         attack: `
-<span class="prompt">$</span> Teacher Agent - 攻击方
+<span class="prompt">$</span> TeacherAgent.select_attack(scenario=UGC)
 
-🔴 选择最优攻击方式...
+Selecting optimal attack (argmax(revenue - cost - risk))...
 
-  攻击场景：AIGC 生成图
-  作恶成本:
-    - 时间成本：5 分钟
-    - 资金成本：￥0.1/张
-    - 技术成本：低 (2/10)
-  期望收益：￥7000.00
-  是否有利可图：✅ 是
+  Attack: AIGC Generated Image
+  Cost Model:
+    - Time:       5 min
+    - Money:      ￥0.10/image
+    - Tech:       2/10
+  Expected Revenue: ￥7000.00
+  Profitable: Yes
 
-  攻击场景：UID 批量刷单
-  作恶成本:
-    - 时间成本：12 分钟/账号
-    - 资金成本：￥5/账号
-    - 账号成本：封号率 30%
-  期望收益：￥29600.00
-  是否有利可图：✅ 是
+  Attack: UID Batch Operations
+  Cost Model:
+    - Time:       12 min/account
+    - Money:      ￥5/account
+    - Account:    30% ban rate
+  Expected Revenue: ￥29600.00
+  Profitable: Yes
 `,
         defense: `
-<span class="prompt">$</span> Student Agent - 防御方
+<span class="prompt">$</span> StudentAgent.defense_decision(attack)
 
-🔵 收到攻击：AIGC 生成图
+Matching defense strategies...
 
-  匹配防御策略:
-    ✅ AIGC 检测 (检测率 88%)
-    ✅ 图像真伪检测 (检测率 92%)
-    ✅ 互联网发现 (检测率 85%)
+  Attack: AIGC Generated Image
+  Strategies matched:
+    + AIGC Detection       (detection: 88%, FP: 0.8%)
+    + Image Verification   (detection: 92%, FP: 0.5%)
+    + Internet Discovery   (detection: 85%, FP: 1.0%)
 
-  综合置信度：88.5%
-  决策： BLOCK (拦截)
+  Combined confidence: 88.5%
+  Decision: BLOCK
 
-  匹配防御策略:
-    ✅ UID 关联分析 (检测率 95%)
-    ✅ 设备指纹识别 (检测率 93%)
+  Attack: UID Batch Operations
+  Strategies matched:
+    + UID Correlation      (detection: 95%, FP: 0.3%)
+    + Device Fingerprint   (detection: 93%, FP: 0.5%)
 
-  综合置信度：94.0%
-  决策：🚫 BLOCK (拦截)
+  Combined confidence: 94.0%
+  Decision: BLOCK
 `,
         result: `
-<span class="prompt">$</span> 第 1 轮对抗结果
+<span class="prompt">$</span> Round 1 Complete
 
-┌─────────────────────────────────────────────┐
-│  攻击成功：0 | 防御成功：8                  │
-│  发现漏洞：0 | 修复漏洞：0                  │
-│  漏放率：0.00% | 误拦率：0.50%             │
-└─────────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  Attacks blocked: 2 | Passed: 6         │
+│  Vulnerabilities found: 0 | Fixed: 0   │
+│  Miss rate: 0.00% | FP rate: 0.50%    │
+└─────────────────────────────────────────┐
 
- 防御指标:
-  - 防御策略总数：12
-  - 有效策略数：11
-  - 平均检测率：91.5%
-  - 平均误报率：0.58%
-
-✅ 对抗演练完成！
+Student Metrics:
+  Total strategies:     12
+  Effective strategies: 11
+  Avg detection rate:   91.5%
+  Avg false positive:   0.58%
 `
     };
 
@@ -66,7 +65,7 @@ function runDemo(type) {
     output.scrollTop = output.scrollHeight;
 }
 
-// 平滑滚动
+// Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -77,7 +76,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// 导航栏滚动效果
+// Navbar scroll effect
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 50) {
@@ -88,6 +87,5 @@ window.addEventListener('scroll', () => {
     }
 });
 
-console.log('%c🎯 POI Harness 对抗沙箱 v1.0', 'font-size: 20px; color: #E74C3C;');
-console.log('%c从作恶动机建模到自进化风控体系', 'font-size: 14px; color: #3498DB;');
-console.log('GitHub: https://github.com/znxzsy/poi-agent');
+console.log('%.poi-agent v1.0', 'font-size: 20px; color: #E74C3C;');
+console.log('%cMulti-Agent Adversarial Testing Framework', 'font-size: 14px; color: #3498DB;');

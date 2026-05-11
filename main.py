@@ -12,7 +12,7 @@ from datetime import datetime
 # 添加项目路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from core.models import对抗 Round, Scenario
+from core.models import AdversarialRound, Scenario
 from agents.teacher import TeacherAgent
 from agents.student import StudentAgent
 
@@ -31,14 +31,14 @@ class POIHarnessSandbox:
     def __init__(self):
         self.teacher = TeacherAgent()
         self.student = StudentAgent()
-        self.round_history: List[对抗 Round] = []
+        self.round_history: List[AdversarialRound] = []
         self.current_round = 0
 
-    def run_round(self) -> 对抗 Round:
+    def run_round(self) -> AdversarialRound:
         """运行一轮对抗"""
         self.current_round += 1
 
-        round_result = 对抗 Round(
+        round_result = AdversarialRound(
             round_id=self.current_round,
             timestamp=datetime.now().isoformat(),
         )

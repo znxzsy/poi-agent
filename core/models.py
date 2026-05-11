@@ -59,7 +59,7 @@ class EvilCostModel:
         """技术难度平均值"""
         return (self.bypass_difficulty + self.tool_dev_cost) / 2
 
-    def account lifecycle_value(self) -> float:
+    def lifecycle_value(self) -> float:
         """账号生命周期价值"""
         return self.account_cost * self.reuse_count * (1 - self.ban_rate)
 
@@ -168,17 +168,17 @@ class DefenseStrategy:
 
 
 @dataclass
-class对抗 Round:
+class AdversarialRound:
     """对抗轮次"""
     round_id: int
     timestamp: str
 
     # 攻击方
-    attack_scenarios: List[AttackScenario]
+    attack_scenarios: List[AttackScenario] = field(default_factory=list)
     attack_success_count: int = 0
 
     # 防御方
-    defense_strategies: List[DefenseStrategy]
+    defense_strategies: List[DefenseStrategy] = field(default_factory=list)
     defense_success_count: int = 0
 
     # 结果

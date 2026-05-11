@@ -227,10 +227,15 @@ body {
     color: var(--text-light);
 }
 
-/* 架构区域 */
+/* Architecture */
 .architecture {
     padding: 100px 0;
     background: var(--light);
+}
+
+.arch-diagram-image {
+    text-align: center;
+    margin-bottom: 1rem;
 }
 
 .arch-diagram {

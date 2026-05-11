@@ -1,220 +1,217 @@
-# 🎯 POI Harness 对抗沙箱
+# poi-agent
 
-> **从作恶动机建模到自进化风控体系**
+> Multi-Agent Adversarial Testing Framework for Content Risk Control
 
-基于 Harness Engineering 理念的 POI 风控对抗系统，通过 Teacher/Student 双 Agent 持续对抗，实现主动防御、自进化的风控能力。
+A harness engineering framework that uses Teacher/Student dual-agent adversarial training to discover vulnerabilities in content moderation systems and automatically iterate on defenses.
+
+```
+Teacher Agent (attacker) ──generates──→ Adversarial Samples
+                                              │
+                                              ▼
+Student Agent (defender) ←──responds to─── Adversarial Samples
+                                              │
+                                              ▼
+                                        Evaluate & Fix
+                                              │
+                                              ▼
+                                   Iterate until convergence
+```
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)]()
 
 ---
 
-## 📋 核心理念
+## Install
 
-### 范式转换
-
-| 维度 | 传统风控 | 我们的方法 |
-|------|----------|------------|
-| **建模角度** | 行为特征（异常新增/批量操作） | **经济动机（成本/收益/风险）** |
-| **场景覆盖** | UGC/BGC/非 UB 各一套规则 | **一套模型复用全场景** |
-| **演进方式** | 规则堆砌，永远滞后 | **成本动态调整，主动对抗** |
-| **核心指标** | 召回率/准确率 | **作恶成本提升倍数** |
-
-### 核心公式
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│   作恶成本 > 作恶收益  →  黑灰产无利可图  →  自然放弃        │
-│   平台审核成本 < 作恶成本  →  风控可持续                    │
-└─────────────────────────────────────────────────────────────┘
+```bash
+git clone https://github.com/znxzsy/poi-agent.git
+cd poi-agent
+pip install graphviz  # for diagram generation
 ```
 
-### 作恶成本四维模型
+## Quick Start
 
-| 成本维度 | 子项 | 提升手段 |
-|----------|------|----------|
-| **时间成本** | 注册耗时、操作耗时、等待耗时 | 增加验证步骤、延长审核周期 |
-| **资金成本** | 账号成本、设备成本、IP 成本 | 提高账号门槛、设备指纹识别 |
-| **技术成本** | 绕过难度、工具开发成本 | 增加对抗样本、动态策略 |
-| **账号成本** | 封号率、复用次数 | 提高封号率、降低复用次数 |
-
----
-
-## 🏗️ 技术架构
-
-### 系统架构图
-
-![系统架构](docs/diagrams/system_architecture.png)
-
-### Harness Engineering 三支柱
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    POI Harness 对抗沙箱                       │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │              约束层 Constrain                        │   │
-│  │    Teacher 人格 (攻击方)    Student 人格 (防御方)     │   │
-│  └─────────────────────────────────────────────────────┘   │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │              验证层 Verify                           │   │
-│  │    离线 case≥90% | AB 下线率→0.03% | BGC 拦截≥99%     │   │
-│  └─────────────────────────────────────────────────────┘   │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │              反馈层 Correct                          │   │
-│  │    对抗样本生成 | 周迭代机制 | 100 轮自动迭代          │   │
-│  └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+```bash
+python main.py
 ```
 
-### 项目结构
+This runs 10 rounds of adversarial testing, where the Teacher Agent generates attack samples and the Student Agent attempts to defend against them.
+
+## Architecture
+
+### Three-Layer Harness
+
+| Layer | Responsibility |
+|-------|---------------|
+| **Constrain** | Define Teacher/Student personality and behavioral boundaries |
+| **Verify** | Check whether agent outputs meet quality thresholds |
+| **Correct** | Fix issues and feed back into the next iteration |
+
+### Components
 
 ```
-poi_agent/
-├── main.py                   # 系统入口，对抗演练编排
-├── generate_diagrams.py      # 架构图生成器
+poi-agent/
+├── main.py             # Orchestration entry point
 ├── core/
-│   └── models.py             # 数据模型（成本/收益/风险/场景）
+│   └── models.py       # Data models: cost/revenue/risk/scenario
 ├── agents/
-│   ├── teacher.py            # Teacher Agent（攻击方）
-│   └── student.py            # Student Agent（防御方）
-├── website/                  # 项目网站
-└── docs/                     # 文档与架构图
+│   ├── teacher.py      # Teacher Agent (attacker side)
+│   └── student.py      # Student Agent (defender side)
+├── generate_diagrams.py  # Architecture diagram generator
+└── website/            # Project site
 ```
 
----
+## API Reference
 
-## 🎮 攻击场景全景
+### Core Models
 
-所有黑灰产攻击，归根结底就两件事：
+**EvilCostModel** - Four-dimensional cost model:
 
+```python
+from core.models import EvilCostModel
+
+cost = EvilCostModel(
+    # Time cost (minutes)
+    registration_time=10,
+    operation_time=5,
+    waiting_time=0,
+    # Money cost (yuan)
+    account_cost=0.1,
+    device_cost=0,
+    ip_cost=0,
+    # Tech cost (1-10 difficulty)
+    bypass_difficulty=2,
+    tool_dev_cost=0,
+    # Account cost
+    ban_rate=0.3,
+    reuse_count=10,
+)
+
+cost.total_time_cost()      # 15 minutes
+cost.total_money_cost()     # 0.1 yuan
+cost.tech_difficulty()      # 1.0
 ```
-┌─────────────────────────────────────────────────────────────┐
-│   1. 增了假的点  →  无中生有                                 │
-│   2. 篡改属性  →  把别人的信息改成自己的                     │
-└─────────────────────────────────────────────────────────────┘
+
+**EvilRevenue** - Expected revenue calculation:
+
+```python
+from core.models import EvilRevenue
+
+revenue = EvilRevenue(
+    success_revenue=10000,
+    success_rate=0.7,
+    failure_loss=1000,
+    failure_rate=0.3,
+)
+revenue.expected_revenue()  # 6700.0
 ```
 
-| 攻击类型 | 具体手段 | 占比 |
-|----------|----------|------|
-| **图像伪造** | P 图、AIGC 生成图、一镜到底视频伪造 | 50% |
-| **批量操作** | UID 批量刷单 | 20% |
-| **信息篡改** | 篡改电话/地址/品牌 | 25% |
-| **资质造假** | 营业执照一对多 | 3% |
-| **擦边违规** | 挂品信息擦边 | 2% |
+**AttackScenario** - Attack definition with cost/revenue/risk:
 
----
+```python
+from core.models import AttackScenario, AttackType, Scenario, EvilCostModel, EvilRevenue
 
-## 🚀 快速开始
+attack = AttackScenario(
+    name="AIGC 生成图",
+    attack_type=AttackType.IMAGE_FORGERY,
+    scenario=Scenario.UGC,
+    description="Use Midjourney to generate fake store images",
+    cost=EvilCostModel(operation_time=5, account_cost=0.1, bypass_difficulty=2),
+    revenue=EvilRevenue(success_revenue=10000, success_rate=0.7),
+)
+attack.is_profitable()  # True/False based on cost-revenue analysis
+```
 
-### 安装依赖
+**DefenseStrategy** - Defense capability with detection/false-positive rates:
+
+```python
+from core.models import DefenseStrategy, Scenario
+
+strategy = DefenseStrategy(
+    name="AIGC Detection",
+    description="Detect AI-generated fake images",
+    target_scenarios=[Scenario.GC],
+    detection_rate=0.88,
+    false_positive_rate=0.008,
+)
+strategy.is_effective()  # True if detection_rate >= 0.9 and fp_rate <= 0.01
+```
+
+### Agents
+
+**TeacherAgent** - Generates adversarial samples:
+
+```python
+from agents.teacher import TeacherAgent
+from core.models import Scenario
+
+teacher = TeacherAgent()
+
+# Select optimal attack (argmax(revenue - cost - risk))
+best_attack = teacher.select_attack(scenario=Scenario.UGC)
+
+# Generate adversarial sample details
+sample = teacher.generate_adversarial_sample(best_attack)
+
+# Evolve attack based on defense info
+evolved = teacher.evolve_attack(best_attack, defense_info={"detected": True})
+```
+
+**StudentAgent** - Makes defense decisions:
+
+```python
+from agents.student import StudentAgent
+
+student = StudentAgent()
+
+# Defense decision for an attack
+result = student.defense_decision(attack)
+# Returns: {"action": "BLOCK"/"PASS", "confidence": 0.88, "strategies": [...]}
+
+# Learn from a new attack
+new_strategy = student.learn_from_attack(attack, result)
+
+# Update strategy parameters
+student.update_strategy("AIGC Detection", new_detection_rate=0.92, new_fp_rate=0.005)
+```
+
+### Orchestration
+
+**POIHarnessSandbox** - Runs adversarial rounds:
+
+```python
+from main import POIHarnessSandbox
+
+sandbox = POIHarnessSandbox()
+
+# Run a single round
+round_result = sandbox.run_round()
+
+# Run multiple rounds
+sandbox.run_multiple_rounds(num_rounds=10)
+```
+
+## Configuration
+
+All attack scenarios and defense strategies are defined in their respective agent files (`agents/teacher.py`, `agents/student.py`). To customize:
+
+1. **Add attack scenarios** - Append to `TeacherAgent.attack_scenarios` in `_init_attack_scenarios()`
+2. **Add defense strategies** - Append to `StudentAgent.defense_strategies` in `_init_defense_strategies()`
+3. **Adjust thresholds** - Modify `max_false_positive` in `DefenseStrategy` or the `threshold` in `StudentAgent.defense_decision()`
+
+## Generate Diagrams
 
 ```bash
-cd poi_agent
-pip3 install graphviz  # 架构图生成
+python generate_diagrams.py
 ```
 
-### 运行对抗演练
+Generates 4 professional diagrams to `docs/diagrams/`:
+- System Architecture (4-layer: App/Agent/Core/Data)
+- Cost Model (four-dimensional cost visualization)
+- Adversarial Flow (4-phase adversarial process)
+- Evolution Prediction (attack evolution timeline)
 
-```bash
-python3 main.py
-```
-
-### 生成架构图
-
-```bash
-python3 generate_diagrams.py
-```
-
----
-
-## 📊 实践效果
-
-### 动机层效果
-
-**核心洞察**：我们建模的是**不变的动机**，而不是**变化的行为**
-
-| 攻击类型 | 传统方法 | 我们的方法 |
-|----------|----------|------------|
-| UID 批量刷单 | 规则：同一 UID 新增>50 个 | 动机：批量操作成本最低 |
-| AIGC 生成图 | 规则：图片特征检测 | 动机：生成图成本最低 |
-| 篡改电话 | 规则：电话变更审核 | 动机：热门点位收益最高 |
-
-### 决策层效果
-
-**四维成本提升**：
-
-| 成本维度 | 攻击手段 | 基线成本 | 当前成本 | 提升倍数 |
-|----------|----------|----------|----------|----------|
-| **时间成本** | UID 批量刷单 | 10 分钟/账号 | 50 分钟/账号 | 5x |
-| **资金成本** | AIGC 生成图 | ￥0.1/张 | ￥0.5/张 | 5x |
-| **技术成本** | P 图 | 低门槛 | 中门槛 | 3x |
-| **账号成本** | 封号率 | 30% | 80% | 2.7x |
-
-### 演进层效果
-
-**演进方向预测准确率**：
-
-| 攻击类型 | 2024 手段 | 2025 预测 | 2025 实际 | 准确率 |
-|----------|-----------|-----------|-----------|--------|
-| 图像伪造 | P 图 | AIGC 生成图 | AIGC 生成图 | ✅ 100% |
-| 视频伪造 | 剪辑视频 | 一镜到底伪造 | 一镜到底伪造 | ✅ 100% |
-| 批量操作 | 手动刷单 | 脚本自动化 | 脚本自动化 | ✅ 100% |
-
----
-
-## 🔮 技术愿景
-
-我们不只是在构建一个风控系统，而是在探索**AI 驱动的风控新范式**：
-
-### 技术创新方向
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  短期 (1-2 年) - 能力构建                                    │
-├─────────────────────────────────────────────────────────────┤
-│  • 动态成本模型：实时计算攻击者 ROI，自动调整防御策略        │
-│  • 跨域知识迁移：将 POI 风控经验迁移到电商、金融等场景        │
-│  • 人机协同审核：AI 发现可疑 case，人工确认，反馈闭环        │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│  中期 (2-3 年) - 自进化系统                                  │
-├─────────────────────────────────────────────────────────────┤
-│  • Agent 自主修改工具链：100 轮自动迭代，无需人工干预         │
-│  • 攻击演进预测：基于博弈论推演下一步攻击手段               │
-│  • 风控大模型：训练垂直领域的风控专用模型                   │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│  长期 (3-5 年) - 行业生态                                    │
-├─────────────────────────────────────────────────────────────┤
-│  • 开源对抗沙箱框架：建立行业标准，降低风控技术门槛         │
-│  • 风险情报网络：跨平台共享黑灰产情报，联防联控             │
-│  • 商业化输出：SaaS 服务，支持中小企业风控需求              │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 技术壁垒构建
-
-1. **数据壁垒**：积累 10 万 + 真实攻击样本，持续优化模型
-2. **算法壁垒**：专有的作恶成本量化算法，难以复制
-3. **工程壁垒**：Harness Engineering 方法论，快速迭代能力
-4. **生态壁垒**：跨行业应用验证，形成网络效应
-
----
-
-## 📚 参考文献
-
-1. OpenAI. "Harness Engineering: A New Paradigm for AI-Assisted Development." 2025.
-2. Anthropic. "Multi-Agent Architecture for Code Generation." 2025.
-3. LangChain. "Middleware Architecture for Agent Systems." 2025.
-4. Martin Fowler. "Harness Engineering: Beyond Prompt Engineering." 2025.
-5. MiniMax. "Self-Evolving Agent Systems." 2025.
-
----
-
-## 📜 License
+## License
 
 MIT

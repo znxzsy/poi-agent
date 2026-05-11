@@ -1,208 +1,197 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POI Harness 对抗沙箱 - 从作恶动机建模到自进化风控体系</title>
-    <meta name="description" content="基于 Harness Engineering 的 POI 风控对抗系统，Teacher/Student 双 Agent 持续对抗，主动防御、自进化">
+    <title>poi-agent - Multi-Agent Adversarial Testing Framework</title>
+    <meta name="description" content="A harness engineering framework for content risk control using Teacher/Student dual-agent adversarial training">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- 导航栏 -->
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
-            <a href="#" class="logo">🎯 POI Harness</a>
+            <a href="#" class="logo">poi-agent</a>
             <ul class="nav-links">
-                <li><a href="#home">首页</a></li>
-                <li><a href="#concept">核心理念</a></li>
-                <li><a href="#architecture">架构</a></li>
-                <li><a href="#scenarios">攻击场景</a></li>
-                <li><a href="#demo">演示</a></li>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#models">Models</a></li>
+                <li><a href="#agents">Agents</a></li>
                 <li><a href="https://github.com/znxzsy/poi-agent" target="_blank">GitHub</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Hero 区域 -->
+    <!-- Hero -->
     <section id="home" class="hero">
         <div class="container">
-            <h1>🎯 POI Harness 对抗沙箱</h1>
-            <h2>从作恶动机建模到自进化风控体系</h2>
-            <p class="tagline">Harness Engineering × Multi-Agent × 主动防御</p>
+            <h1>poi-agent</h1>
+            <h2>Multi-Agent Adversarial Testing Framework</h2>
+            <p class="tagline">Harness Engineering &times; Content Risk Control &times; Self-Evolving Defense</p>
             <div class="hero-buttons">
-                <a href="#demo" class="btn btn-primary">在线演示</a>
+                <a href="#agents" class="btn btn-primary">Quick Start</a>
                 <a href="https://github.com/znxzsy/poi-agent" class="btn btn-secondary">
                     <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                    查看源码
+                    View Source
                 </a>
             </div>
             <div class="hero-stats">
                 <div class="stat">
-                    <span class="stat-number">20+</span>
-                    <span class="stat-label">攻击场景</span>
+                    <span class="stat-number">31</span>
+                    <span class="stat-label">Unit Tests</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-number">10+</span>
-                    <span class="stat-label">防御策略</span>
+                    <span class="stat-number">2</span>
+                    <span class="stat-label">Agent Roles</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-number">5x</span>
-                    <span class="stat-label">作恶成本提升</span>
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Harness Pillars</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-number">99%</span>
-                    <span class="stat-label">BGC 拦截率</span>
+                    <span class="stat-number">4D</span>
+                    <span class="stat-label">Cost Model</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 核心理念 -->
-    <section id="concept" class="concept">
-        <div class="container">
-            <h2 class="section-title">核心理念</h2>
-            <div class="concept-grid">
-                <div class="concept-card">
-                    <div class="concept-icon">📐</div>
-                    <h3>核心公式</h3>
-                    <div class="formula-box">
-                        <p>作恶成本 > 作恶收益</p>
-                        <p class="formula-sub">黑灰产无利可图 → 自然放弃</p>
-                    </div>
-                </div>
-                <div class="concept-card">
-                    <div class="concept-icon">🎯</div>
-                    <h3>范式转换</h3>
-                    <p>从<strong>行为特征</strong>建模转向<strong>经济动机</strong>建模</p>
-                    <ul class="concept-list">
-                        <li>传统：行为 A → 规则 A 拦截</li>
-                        <li>我们：利益驱动 → 成本收益分析</li>
-                    </ul>
-                </div>
-                <div class="concept-card">
-                    <div class="concept-icon">📊</div>
-                    <h3>四维成本模型</h3>
-                    <ul class="concept-list">
-                        <li>⏱️ 时间成本：注册/操作/等待耗时</li>
-                        <li>💰 资金成本：账号/设备/IP 成本</li>
-                        <li>🔧 技术成本：绕过难度/工具开发</li>
-                        <li>👤 账号成本：封号率/复用次数</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 架构 -->
+    <!-- Architecture -->
     <section id="architecture" class="architecture">
         <div class="container">
-            <h2 class="section-title">技术架构</h2>
-            <p class="section-desc">Harness Engineering 三支柱 × 四层架构</p>
+            <h2 class="section-title">Architecture</h2>
+            <p class="section-desc">Three-layer harness engineering: Constrain &rarr; Verify &rarr; Correct</p>
             <div class="arch-diagram-image">
-                <img src="docs/system_architecture.png" alt="系统架构图" style="width:100%;max-width:1200px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                <img src="docs/system_architecture.png" alt="System Architecture Diagram" style="width:100%;max-width:1200px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
             </div>
             <div class="arch-diagram" style="margin-top:30px;">
                 <div class="arch-layer constrain">
-                    <h3>🔒 约束层 Constrain</h3>
+                    <h3>Constrain (Constraint Layer)</h3>
                     <div class="arch-grid">
                         <div class="arch-box">
-                            <h4>Teacher 人格</h4>
-                            <p>利益驱动 · 成本收益 · 风险规避</p>
+                            <h4>Teacher Agent</h4>
+                            <p>Attacker role &middot; Profit-driven &middot; Risk-aware</p>
                         </div>
                         <div class="arch-box">
-                            <h4>Student 人格</h4>
-                            <p>合规优先 · 误拦≤1% · 时效优先</p>
+                            <h4>Student Agent</h4>
+                            <p>Defender role &middot; Compliance-first &middot; FP &le; 1%</p>
                         </div>
                     </div>
                 </div>
-                <div class="arrow-down">⬇</div>
+                <div class="arrow-down">&darr;</div>
                 <div class="arch-layer verify">
-                    <h3>✅ 验证层 Verify</h3>
+                    <h3>Verify (Verification Layer)</h3>
                     <div class="metrics-grid">
                         <div class="metric-box">
-                            <span class="metric-value">90%</span>
-                            <span class="metric-label">离线 case 解决率</span>
+                            <span class="metric-value">detection rate</span>
+                            <span class="metric-label">Strategy effectiveness threshold</span>
                         </div>
                         <div class="metric-box">
-                            <span class="metric-value">0.03%</span>
-                            <span class="metric-label">AB 虚假下线率</span>
+                            <span class="metric-value">false positive</span>
+                            <span class="metric-label">Hard constraint: &le; 1%</span>
                         </div>
                         <div class="metric-box">
-                            <span class="metric-value">99%</span>
-                            <span class="metric-label">BGC 拦截率</span>
+                            <span class="metric-value">profitability</span>
+                            <span class="metric-label">Cost-revenue analysis for attacks</span>
                         </div>
                     </div>
                 </div>
-                <div class="arrow-down">⬇</div>
+                <div class="arrow-down">&darr;</div>
                 <div class="arch-layer correct">
-                    <h3>🔄 反馈层 Correct</h3>
+                    <h3>Correct (Feedback Layer)</h3>
                     <div class="arch-grid">
-                        <div class="arch-box">对抗样本生成</div>
-                        <div class="arch-box">周迭代机制</div>
-                        <div class="arch-box">100 轮自动迭代</div>
+                        <div class="arch-box">Adversarial sample generation</div>
+                        <div class="arch-box">Vulnerability discovery &amp; fix</div>
+                        <div class="arch-box">Iterative convergence</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 攻击场景 -->
-    <section id="scenarios" class="scenarios">
+    <!-- Cost Model -->
+    <section id="models" class="concept">
         <div class="container">
-            <h2 class="section-title">攻击场景全景</h2>
-            <p class="section-desc">所有黑灰产攻击，归根结底就两件事：<strong>增了假的点</strong> 和 <strong>篡改属性</strong></p>
-            <div class="scenarios-grid">
-                <div class="scenario-card">
-                    <div class="scenario-icon">🖼️</div>
-                    <h3>图像伪造</h3>
-                    <ul>
-                        <li>P 图篡改 (25%)</li>
-                        <li>AIGC 生成图 (15%)</li>
-                        <li>一镜到底视频伪造 (10%)</li>
+            <h2 class="section-title">Core Models</h2>
+            <p class="section-desc">Four-dimensional cost-revenue-risk framework for adversarial decision modeling</p>
+            <div class="arch-diagram-image">
+                <img src="docs/cost_model.png" alt="Cost Model Diagram" style="width:100%;max-width:1000px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+            </div>
+            <div class="concept-grid" style="margin-top:30px;">
+                <div class="concept-card">
+                    <div class="concept-icon">E</div>
+                    <h3>EvilCostModel</h3>
+                    <p>Four-dimensional cost model for quantifying adversarial effort:</p>
+                    <ul class="concept-list">
+                        <li><strong>Time:</strong> registration, operation, waiting (minutes)</li>
+                        <li><strong>Money:</strong> account, device, IP cost (yuan)</li>
+                        <li><strong>Technology:</strong> bypass difficulty, tool dev (1-10 scale)</li>
+                        <li><strong>Account:</strong> ban rate, reuse count</li>
                     </ul>
                 </div>
-                <div class="scenario-card">
-                    <div class="scenario-icon">🔄</div>
-                    <h3>批量操作</h3>
-                    <ul>
-                        <li>UID 批量刷单 (20%)</li>
+                <div class="concept-card">
+                    <div class="concept-icon">&pi;</div>
+                    <h3>EvilRevenue</h3>
+                    <p>Expected revenue calculation:</p>
+                    <div class="formula-box">
+                        <p>E[revenue] = R&subsoc;&times;P&subsoc; - R&subf;&times;P&subf;</p>
+                    </div>
+                    <p style="margin-top:1rem;">Where R&subsoc; is success revenue, P&subsoc; is success rate, R&subf; is failure loss, P&subf; is failure rate.</p>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">R</div>
+                    <h3>RiskCost</h3>
+                    <p>Risk-adjusted cost for adversarial decisions:</p>
+                    <div class="formula-box">
+                        <p>E[risk] = P&subb;&times;L&subb; + P&subl;&times;L&subl;</p>
+                    </div>
+                    <p style="margin-top:1rem;">Where P&subb;/L&subb; is ban probability/loss, P&subl;/L&subl; is legal risk/loss.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agents -->
+    <section id="agents" class="scenarios">
+        <div class="container">
+            <h2 class="section-title">Agents</h2>
+            <p class="section-desc">Teacher/Student dual-agent architecture with adversarial feedback loop</p>
+            <div class="arch-diagram-image">
+                <img src="docs/adversarial_flow.png" alt="Adversarial Flow Diagram" style="width:100%;max-width:1000px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3);margin-bottom:2rem;">
+            </div>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <div class="concept-icon" style="color:#E74C3C;">&#x1F534;</div>
+                    <h3>TeacherAgent (Attacker)</h3>
+                    <p>Simulates adversarial behavior with profit-driven decision making:</p>
+                    <ul class="concept-list">
+                        <li><code>select_attack()</code> &mdash; argmax(revenue - cost - risk)</li>
+                        <li><code>generate_adversarial_sample()</code> &mdash; produce attack details</li>
+                        <li><code>evolve_attack()</code> &mdash; adapt based on defense feedback</li>
                     </ul>
                 </div>
-                <div class="scenario-card">
-                    <div class="scenario-icon">✏️</div>
-                    <h3>信息篡改</h3>
-                    <ul>
-                        <li>恶意篡改电话 (12%)</li>
-                        <li>恶意篡改地址 (8%)</li>
-                        <li>恶意篡改品牌 (5%)</li>
-                    </ul>
-                </div>
-                <div class="scenario-card">
-                    <div class="scenario-icon">📄</div>
-                    <h3>资质造假</h3>
-                    <ul>
-                        <li>营业执照一对多 (3%)</li>
-                    </ul>
-                </div>
-                <div class="scenario-card">
-                    <div class="scenario-icon">⚠️</div>
-                    <h3>擦边违规</h3>
-                    <ul>
-                        <li>挂品信息擦边 (2%)</li>
+                <div class="concept-card">
+                    <div class="concept-icon" style="color:#3498DB;">&#x1F535;</div>
+                    <h3>StudentAgent (Defender)</h3>
+                    <p>Simulates defense with compliance-first decision making:</p>
+                    <ul class="concept-list">
+                        <li><code>select_defense()</code> &mdash; match strategies to attack type</li>
+                        <li><code>defense_decision()</code> &mdash; BLOCK/PASS based on confidence</li>
+                        <li><code>learn_from_attack()</code> &mdash; generate new defense strategy</li>
                     </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 演示 -->
+    <!-- Demo -->
     <section id="demo" class="demo">
         <div class="container">
-            <h2 class="section-title">对抗演练演示</h2>
+            <h2 class="section-title">Demo</h2>
             <div class="demo-container">
                 <div class="terminal">
                     <div class="terminal-header">
-                        <span class="terminal-title">POI Harness Sandbox</span>
+                        <span class="terminal-title">poi-agent - adversarial sandbox</span>
                         <div class="terminal-buttons">
                             <span class="btn-red"></span>
                             <span class="btn-yellow"></span>
@@ -211,74 +200,72 @@
                     </div>
                     <div class="terminal-body">
                         <pre id="terminal-output">
-<span class="prompt">$</span> python3 main.py
+<span class="prompt">$</span> python main.py
 
 ╔════════════════════════════════════════════════╗
-║  🎯 POI Harness 对抗沙箱 v1.0                 ║
-║  从作恶动机建模到自进化风控体系                ║
+║  poi-agent - adversarial testing framework     ║
+║  Harness Engineering: Constrain-Verify-Correct ║
 ╚════════════════════════════════════════════════╝
 
-🎯 开始运行 10 轮对抗演练...
+Running 10 adversarial rounds...
 
 ============================================================
-  第 1 轮对抗
+  Round 1
 ============================================================
 
-【阶段 1】Teacher 生成对抗样本...
+[Phase 1] Teacher generates adversarial samples...
 
-  攻击场景：AIGC 生成图 (UGC)
-  期望收益：￥7000.00 | 有利可图：True
-  ✅ 防御成功 - 触发 3 个防御策略
-     置信度：88.50%
+  Attack: AIGC Generated Image (UGC)
+  Expected revenue: ￥7000.00 | Profitable: True
 
-  攻击场景：UID 批量刷单 (UGC)
-  期望收益：￥29600.00 | 有利可图：True
-  ✅ 防御成功 - 触发 2 个防御策略
-     置信度：94.00%
+  Attack: UID Batch Operations (UGC)
+  Expected revenue: ￥29600.00 | Profitable: True
 
-┌─────────────────────────────────────────────┐
-│  第 1 轮对抗结果
-├─────────────────────────────────────────────┤
-│  攻击成功：0 | 防御成功：8
-│  漏放率：0.00% | 误拦率：0.50%
-└─────────────────────────────────────────────┘
+[Phase 2] Student defends...
+
+  ┌─────────────────────────────────────────┐
+  │  Attacks blocked: 2 | Defense passed: 0 │
+  │  Vulnerabilities found: 0              │
+  │  Miss rate: 0.00% | FP rate: 0.50%    │
+  └─────────────────────────────────────────┘
+
                         </pre>
                     </div>
                 </div>
                 <div class="demo-controls">
-                    <h3>快速体验</h3>
+                    <h3>Interactive Demo</h3>
                     <div class="control-group">
-                        <button class="demo-btn" onclick="runDemo('attack')">🔴 Teacher 攻击</button>
-                        <button class="demo-btn" onclick="runDemo('defense')">🔵 Student 防御</button>
-                        <button class="demo-btn" onclick="runDemo('result')">📊 对抗结果</button>
+                        <button class="demo-btn" onclick="runDemo('attack')">Teacher Attack</button>
+                        <button class="demo-btn" onclick="runDemo('defense')">Student Defense</button>
+                        <button class="demo-btn" onclick="runDemo('result')">Round Result</button>
                     </div>
                     <div class="install-guide">
-                        <h4>本地运行</h4>
+                        <h4>Install & Run</h4>
                         <code>git clone https://github.com/znxzsy/poi-agent.git</code>
                         <code>cd poi-agent</code>
-                        <code>python3 main.py</code>
+                        <code>python main.py</code>
+                        <code>python -m pytest tests/ -v</code>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 页脚 -->
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-left">
-                    <p>🎯 POI Harness 对抗沙箱 v1.0</p>
-                    <p>从作恶动机建模到自进化风控体系</p>
+                    <p>poi-agent - Multi-Agent Adversarial Testing Framework</p>
                 </div>
                 <div class="footer-right">
                     <a href="https://github.com/znxzsy/poi-agent" target="_blank">GitHub</a>
-                    <a href="#scenarios">攻击场景</a>
-                    <a href="#demo">演示</a>
+                    <a href="#models">Models</a>
+                    <a href="#agents">Agents</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 POI Harness. MIT License.</p>
+                <p>MIT License.</p>
             </div>
         </div>
     </footer>
