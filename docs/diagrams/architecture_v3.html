@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POI Harness 对抗沙箱 - 系统架构图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'HarmonyOS Sans', sans-serif;
+            background: radial-gradient(ellipse at 50% 0%, #1a2a4a 0%, #0d1117 40%, #0a0a0f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        .diagram-container {
+            background: linear-gradient(180deg, rgba(20,30,50,0.9) 0%, rgba(10,15,25,0.95) 100%);
+            border-radius: 20px;
+            padding: 45px 50px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            border: 1px solid rgba(100,150,200,0.15);
+            position: relative;
+        }
+        .diagram-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            color: #e8e8e8;
+            margin-bottom: 6px;
+            letter-spacing: 3px;
+        }
+        .diagram-subtitle {
+            text-align: center;
+            color: #5a6a7e;
+            font-size: 12px;
+            margin-bottom: 35px;
+            letter-spacing: 1.5px;
+            font-weight: 400;
+        }
+        svg { display: block; }
+
+        /* 卡片样式 - 细边框精致风格 */
+        .card-app {
+            fill: rgba(45, 80, 110, 0.35);
+            stroke: rgba(93, 173, 226, 0.6);
+            stroke-width: 1;
+        }
+        .card-teacher {
+            fill: rgba(120, 50, 45, 0.35);
+            stroke: rgba(231, 76, 60, 0.7);
+            stroke-width: 1;
+        }
+        .card-student {
+            fill: rgba(45, 80, 120, 0.35);
+            stroke: rgba(52, 152, 219, 0.7);
+            stroke-width: 1;
+        }
+        .card-core {
+            fill: rgba(40, 90, 65, 0.35);
+            stroke: rgba(88, 214, 141, 0.6);
+            stroke-width: 1;
+        }
+        .card-data {
+            fill: rgba(90, 75, 35, 0.35);
+            stroke: rgba(245, 176, 65, 0.5);
+            stroke-width: 1;
+        }
+
+        /* 文字样式 - 细字体 */
+        .text-title-en {
+            font-size: 15px;
+            font-weight: 600;
+            fill: #ffffff;
+            letter-spacing: 0.5px;
+        }
+        .text-title-cn {
+            font-size: 14px;
+            font-weight: 500;
+            fill: rgba(255,255,255,0.9);
+        }
+        .text-desc {
+            font-size: 11px;
+            fill: rgba(255,255,255,0.55);
+            font-weight: 400;
+        }
+        .text-code {
+            font-size: 10px;
+            fill: rgba(255,255,255,0.4);
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        .text-label {
+            font-size: 11px;
+            font-weight: 400;
+            fill: rgba(200,220,240,0.7);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* 层背景 */
+        .layer-separator {
+            stroke: rgba(255,255,255,0.06);
+            stroke-width: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <h1 class="diagram-title">POI Harness 对抗沙箱</h1>
+        <p class="diagram-subtitle">Multi-Agent Adversarial Testing Framework</p>
+
+        <svg width="1100" height="720" viewBox="0 0 1100 720">
+            <defs>
+                <!-- 箭头标记 -->
+                <marker id="arrowRed" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                    <path d="M0,0 L10,3.5 L0,7 Z" fill="#E74C3C" opacity="0.9"/>
+                </marker>
+                <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                    <path d="M0,0 L10,3.5 L0,7 Z" fill="#3498DB" opacity="0.9"/>
+                </marker>
+            </defs>
+
+            <!-- 背景网格 -->
+            <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(100,150,200,0.03)" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="1100" height="720" fill="url(#grid)"/>
+
+            <!-- 分隔线 -->
+            <line x1="50" y1="140" x2="1050" y2="140" class="layer-separator"/>
+            <line x1="50" y1="290" x2="1050" y2="290" class="layer-separator"/>
+            <line x1="50" y1="440" x2="1050" y2="440" class="layer-separator"/>
+            <line x1="50" y1="620" x2="1050" y2="620" class="layer-separator"/>
+
+            <!-- 层标签 -->
+            <text x="1050" y="35" text-anchor="end" class="text-label">APPLICATION LAYER</text>
+            <text x="1050" y="165" text-anchor="end" class="text-label">AGENT LAYER</text>
+            <text x="1050" y="315" text-anchor="end" class="text-label">CORE ENGINE LAYER</text>
+            <text x="1050" y="465" text-anchor="end" class="text-label">DATA LAYER</text>
+
+            <!-- ================= 应用层 ================= -->
+            <g id="layer-app">
+                <!-- CLI -->
+                <g class="card-app" transform="translate(80, 55)">
+                    <rect width="200" height="50" rx="8"/>
+                    <text x="100" y="30" text-anchor="middle" class="text-title-en">CLI 控制台</text>
+                </g>
+
+                <!-- API -->
+                <g class="card-app" transform="translate(320, 55)">
+                    <rect width="200" height="50" rx="8"/>
+                    <text x="100" y="30" text-anchor="middle" class="text-title-en">API 接口</text>
+                </g>
+
+                <!-- Dashboard -->
+                <g class="card-app" transform="translate(560, 55)">
+                    <rect width="200" height="50" rx="8"/>
+                    <text x="100" y="30" text-anchor="middle" class="text-title-en">可视化 Dashboard</text>
+                </g>
+
+                <!-- 图例 -->
+                <g transform="translate(820, 50)">
+                    <rect x="0" y="0" width="14" height="14" rx="3" fill="#E74C3C" opacity="0.9"/>
+                    <text x="22" y="11" class="text-desc">攻击方</text>
+
+                    <rect x="0" y="28" width="14" height="14" rx="3" fill="#3498DB" opacity="0.9"/>
+                    <text x="22" y="39" class="text-desc">防御方</text>
+
+                    <rect x="0" y="56" width="14" height="14" rx="3" fill="#58D68D" opacity="0.9"/>
+                    <text x="22" y="67" class="text-desc">核心引擎</text>
+                </g>
+            </g>
+
+            <!-- ================= Agent 层 ================= -->
+            <g id="layer-agent">
+                <!-- Teacher Agent -->
+                <g class="card-teacher" transform="translate(80, 175)">
+                    <rect width="380" height="90" rx="10"/>
+                    <text x="190" y="28" text-anchor="middle" class="text-title-en" style="fill:#E74C3C;">Teacher Agent</text>
+                    <text x="190" y="52" text-anchor="middle" class="text-desc">攻击方 · 利益驱动 · 成本收益分析</text>
+                    <text x="190" y="72" text-anchor="middle" class="text-code">argmax(收益 - 成本 - 风险)</text>
+                </g>
+
+                <!-- Student Agent -->
+                <g class="card-student" transform="translate(620, 175)">
+                    <rect width="380" height="90" rx="10"/>
+                    <text x="190" y="28" text-anchor="middle" class="text-title-en" style="fill:#3498DB;">Student Agent</text>
+                    <text x="190" y="52" text-anchor="middle" class="text-desc">防御方 · 合规优先 · 误拦 ≤ 1%</text>
+                    <text x="190" y="72" text-anchor="middle" class="text-code">confidence &gt; threshold → BLOCK</text>
+                </g>
+
+                <!-- 对抗箭头 -->
+                <path d="M470 205 Q540 205, 540 220" stroke="#E74C3C" stroke-width="2" fill="none" marker-end="url(#arrowRed)" opacity="0.9"/>
+                <path d="M540 250 Q470 250, 470 235" stroke="#3498DB" stroke-width="2" fill="none" stroke-dasharray="4,3" marker-end="url(#arrowBlue)" opacity="0.9"/>
+                <text x="555" y="218" class="text-desc" style="fill:#E74C3C;">攻击</text>
+                <text x="555" y="248" class="text-desc" style="fill:#3498DB;">防御</text>
+            </g>
+
+            <!-- ================= 核心层 ================= -->
+            <g id="layer-core">
+                <!-- Constrain -->
+                <g class="card-core" transform="translate(80, 325)">
+                    <rect width="280" height="70" rx="10"/>
+                    <text x="140" y="25" text-anchor="middle" class="text-title-en" style="fill:#58D68D;">Constrain</text>
+                    <text x="140" y="48" text-anchor="middle" class="text-desc">人格定义 · 边界约束</text>
+                </g>
+
+                <!-- 虚线连接 -->
+                <line x1="370" y1="360" x2="390" y2="360" stroke="#58D68D" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+
+                <!-- Verify -->
+                <g class="card-core" transform="translate(400, 325)">
+                    <rect width="280" height="70" rx="10"/>
+                    <text x="140" y="25" text-anchor="middle" class="text-title-en" style="fill:#58D68D;">Verify</text>
+                    <text x="140" y="48" text-anchor="middle" class="text-desc">指标验证 · 质量检查</text>
+                </g>
+
+                <!-- 虚线连接 -->
+                <line x1="690" y1="360" x2="710" y2="360" stroke="#58D68D" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+
+                <!-- Correct -->
+                <g class="card-core" transform="translate(720, 325)">
+                    <rect width="280" height="70" rx="10"/>
+                    <text x="140" y="25" text-anchor="middle" class="text-title-en" style="fill:#58D68D;">Correct</text>
+                    <text x="140" y="48" text-anchor="middle" class="text-desc">反馈优化 · 自动迭代</text>
+                </g>
+            </g>
+
+            <!-- ================= 数据层 ================= -->
+            <g id="layer-data">
+                <!-- 数据库 1 -->
+                <g transform="translate(80, 475)">
+                    <ellipse cx="60" cy="15" rx="60" ry="12" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <rect x="0" y="15" width="120" height="45" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <ellipse cx="60" cy="60" rx="60" ry="12" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <text x="60" y="75" text-anchor="middle" class="text-desc" style="fill:#F5B041;">攻击场景库 20+</text>
+                </g>
+
+                <!-- 数据库 2 -->
+                <g transform="translate(280, 475)">
+                    <ellipse cx="60" cy="15" rx="60" ry="12" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <rect x="0" y="15" width="120" height="45" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <ellipse cx="60" cy="60" rx="60" ry="12" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <text x="60" y="75" text-anchor="middle" class="text-desc" style="fill:#F5B041;">防御策略库 12+</text>
+                </g>
+
+                <!-- 数据库 3 -->
+                <g transform="translate(480, 475)">
+                    <ellipse cx="60" cy="15" rx="60" ry="12" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <rect x="0" y="15" width="120" height="45" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <ellipse cx="60" cy="60" rx="60" ry="12" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <text x="60" y="75" text-anchor="middle" class="text-desc" style="fill:#F5B041;">对抗历史记录</text>
+                </g>
+
+                <!-- 数据库 4 -->
+                <g transform="translate(680, 475)">
+                    <ellipse cx="60" cy="15" rx="60" ry="12" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <rect x="0" y="15" width="120" height="45" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <ellipse cx="60" cy="60" rx="60" ry="12" fill="rgba(245,176,65,0.25)" stroke="#F5B041" stroke-width="1"/>
+                    <text x="60" y="75" text-anchor="middle" class="text-desc" style="fill:#F5B041;">指标数据监控</text>
+                </g>
+
+                <!-- 反馈循环箭头 -->
+                <path d="M980 490 C1040 490, 1060 400, 980 390" stroke="#58D68D" stroke-width="1.5" stroke-dasharray="6,4" fill="none" opacity="0.7"/>
+            </g>
+
+            <!-- 底部核心公式 -->
+            <g transform="translate(50, 655)">
+                <text x="0" y="0" class="text-code" style="fill:#E74C3C; font-size:11px;">核心公式：</text>
+                <text x="70" y="0" class="text-desc" style="fill:rgba(255,255,255,0.7);">作恶成本 &gt; 作恶收益 → 黑灰产无利可图</text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>
