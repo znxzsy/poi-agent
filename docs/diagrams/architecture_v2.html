@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POI Harness 对抗沙箱 - 系统架构图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'HarmonyOS Sans', sans-serif;
+            background: radial-gradient(ellipse at 50% 0%, #1a2a4a 0%, #0d1117 40%, #0a0a0f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        .diagram-container {
+            background: linear-gradient(180deg, rgba(20,30,50,0.8) 0%, rgba(10,15,25,0.9) 100%);
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow:
+                0 30px 80px rgba(0,0,0,0.6),
+                0 0 200px rgba(52,152,219,0.15),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid rgba(100,150,200,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .diagram-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(52,152,219,0.05) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        .diagram-title {
+            text-align: center;
+            font-size: 38px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #5DADE2 0%, #E74C3C 50%, #58D68D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: 4px;
+            position: relative;
+            z-index: 1;
+        }
+        .diagram-subtitle {
+            text-align: center;
+            color: #5a6a7e;
+            font-size: 14px;
+            margin-bottom: 45px;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+        svg { filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); position: relative; z-index: 1; }
+
+        /* 卡片样式 - 3D 玻璃效果 */
+        .card {
+            filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4));
+            transition: all 0.3s ease;
+        }
+        .card-app {
+            fill: url(#glassBlue);
+            stroke: url(#strokeBlue);
+            stroke-width: 2;
+        }
+        .card-teacher {
+            fill: url(#glassRed);
+            stroke: url(#strokeRed);
+            stroke-width: 2;
+            filter: drop-shadow(0 0 30px rgba(231,76,60,0.4));
+        }
+        .card-student {
+            fill: url(#glassBlue);
+            stroke: url(#strokeBlue);
+            stroke-width: 2;
+            filter: drop-shadow(0 0 30px rgba(52,152,219,0.4));
+        }
+        .card-core {
+            fill: url(#glassGreen);
+            stroke: url(#strokeGreen);
+            stroke-width: 2;
+        }
+        .card-data {
+            fill: url(#glassGold);
+            stroke: url(#strokeGold);
+            stroke-width: 2;
+        }
+
+        /* 文字样式 */
+        .text-title {
+            font-size: 17px;
+            font-weight: 700;
+            fill: #ffffff;
+            letter-spacing: 1px;
+        }
+        .text-main {
+            font-size: 14px;
+            font-weight: 600;
+            fill: #e8e8e8;
+        }
+        .text-sub {
+            font-size: 11px;
+            fill: #8899aa;
+        }
+        .text-label {
+            font-size: 12px;
+            font-weight: 500;
+            fill: #aabccf;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* 连接箭头动画 */
+        .flow-arrow {
+            stroke: url(#flowGradient);
+            stroke-width: 2.5;
+            fill: none;
+            stroke-dasharray: 8,6;
+            animation: flowMove 1.5s linear infinite;
+            filter: drop-shadow(0 0 8px rgba(52,152,219,0.6));
+        }
+        @keyframes flowMove {
+            to { stroke-dashoffset: -28; }
+        }
+
+        /* 对抗循环箭头 */
+        .attack-arrow {
+            stroke: #E74C3C;
+            stroke-width: 4;
+            fill: none;
+            stroke-linecap: round;
+            marker-end: url(#arrowRed);
+            filter: drop-shadow(0 0 12px rgba(231,76,60,0.8));
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        .defense-arrow {
+            stroke: #3498DB;
+            stroke-width: 4;
+            fill: none;
+            stroke-linecap: round;
+            stroke-dasharray: 8,4;
+            marker-end: url(#arrowBlue);
+            filter: drop-shadow(0 0 12px rgba(52,152,219,0.8));
+            animation: glowPulse 2s ease-in-out infinite reverse;
+        }
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 12px currentColor); }
+            50% { filter: drop-shadow(0 0 25px currentColor); }
+        }
+
+        /* 数据库图标渐变动画 */
+        .db-gradient {
+            animation: dbShift 4s ease-in-out infinite;
+        }
+        @keyframes dbShift {
+            0%, 100% { stop-color: #F5B041; }
+            50% { stop-color: #F7DC6F; }
+        }
+
+        /* 层背景 */
+        .layer-bg {
+            rx: 20;
+            stroke-width: 1;
+        }
+        .layer-app-bg {
+            fill: url(#layerApp);
+            stroke: rgba(93,173,226,0.3);
+        }
+        .layer-agent-bg {
+            fill: url(#layerAgent);
+            stroke: rgba(175,122,197,0.3);
+        }
+        .layer-core-bg {
+            fill: url(#layerCore);
+            stroke: rgba(88,214,141,0.3);
+        }
+        .layer-data-bg {
+            fill: url(#layerData);
+            stroke: rgba(245,176,65,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <h1 class="diagram-title">⚔️ POI Harness 对抗沙箱</h1>
+        <p class="diagram-subtitle">Multi-Agent Adversarial Testing Framework · Harness Engineering 三支柱架构</p>
+
+        <svg width="1300" height="980" viewBox="0 0 1300 980">
+            <defs>
+                <!-- 玻璃拟态渐变 -->
+                <linearGradient id="glassBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgba(93,173,226,0.25)"/>
+                    <stop offset="50%" style="stop-color:rgba(52,152,219,0.15)"/>
+                    <stop offset="100%" style="stop-color:rgba(41,128,185,0.2)"/>
+                </linearGradient>
+                <linearGradient id="glassRed" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgba(231,76,60,0.3)"/>
+                    <stop offset="50%" style="stop-color:rgba(192,57,43,0.2)"/>
+                    <stop offset="100%" style="stop-color:rgba(155,44,36,0.25)"/>
+                </linearGradient>
+                <linearGradient id="glassGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgba(88,214,141,0.25)"/>
+                    <stop offset="50%" style="stop-color:rgba(46,204,113,0.15)"/>
+                    <stop offset="100%" style="stop-color:rgba(39,174,96,0.2)"/>
+                </linearGradient>
+                <linearGradient id="glassGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgba(245,176,65,0.25)"/>
+                    <stop offset="50%" style="stop-color:rgba(243,156,18,0.15)"/>
+                    <stop offset="100%" style="stop-color:rgba(211,134,13,0.2)"/>
+                </linearGradient>
+
+                <!-- 描边渐变 -->
+                <linearGradient id="strokeBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#5DADE2"/>
+                    <stop offset="100%" style="stop-color:#2E86C1"/>
+                </linearGradient>
+                <linearGradient id="strokeRed" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#E74C3C"/>
+                    <stop offset="100%" style="stop-color:#C0392B"/>
+                </linearGradient>
+                <linearGradient id="strokeGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#58D68D"/>
+                    <stop offset="100%" style="stop-color:#27AE60"/>
+                </linearGradient>
+                <linearGradient id="strokeGold" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#F5B041"/>
+                    <stop offset="100%" style="stop-color:#D68910"/>
+                </linearGradient>
+
+                <!-- 层背景渐变 -->
+                <linearGradient id="layerApp" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(22,83,109,0.25)"/>
+                    <stop offset="100%" style="stop-color:rgba(30,66,86,0.25)"/>
+                </linearGradient>
+                <linearGradient id="layerAgent" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(88,44,97,0.25)"/>
+                    <stop offset="100%" style="stop-color:rgba(74,45,90,0.25)"/>
+                </linearGradient>
+                <linearGradient id="layerCore" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(26,90,58,0.25)"/>
+                    <stop offset="100%" style="stop-color:rgba(45,90,74,0.25)"/>
+                </linearGradient>
+                <linearGradient id="layerData" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(90,74,26,0.25)"/>
+                    <stop offset="100%" style="stop-color:rgba(90,90,45,0.25)"/>
+                </linearGradient>
+
+                <!-- 流动箭头渐变 -->
+                <linearGradient id="flowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#3498DB"/>
+                    <stop offset="50%" style="stop-color:#58D68D"/>
+                    <stop offset="100%" style="stop-color:#F5B041"/>
+                </linearGradient>
+
+                <!-- 箭头标记 -->
+                <marker id="arrowRed" markerWidth="14" markerHeight="10" refX="12" refY="5" orient="auto">
+                    <path d="M0,0 L14,5 L0,10 Z" fill="#E74C3C"/>
+                </marker>
+                <marker id="arrowBlue" markerWidth="14" markerHeight="10" refX="12" refY="5" orient="auto">
+                    <path d="M0,0 L14,5 L0,10 Z" fill="#3498DB"/>
+                </marker>
+                <marker id="arrowWhite" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+                    <path d="M0,0 L12,4 L0,8 Z" fill="#58D68D"/>
+                </marker>
+            </defs>
+
+            <!-- 背景装饰网格 -->
+            <defs>
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(100,150,200,0.04)" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="1300" height="980" fill="url(#grid)"/>
+
+            <!-- 装饰光效 -->
+            <ellipse cx="650" cy="100" rx="400" ry="150" fill="url(#decorGlow)" opacity="0.3"/>
+            <defs>
+                <radialGradient id="decorGlow">
+                    <stop offset="0%" style="stop-color:rgba(52,152,219,0.3)"/>
+                    <stop offset="100%" style="stop-color:transparent"/>
+                </radialGradient>
+            </defs>
+
+            <!-- ================= 应用层 ================= -->
+            <g id="layer-app" transform="translate(50, 70)">
+                <rect x="0" y="0" width="1200" height="120" class="layer-bg layer-app-bg"/>
+                <text x="600" y="28" text-anchor="middle" class="text-label" letter-spacing="6">应用层 Application Layer</text>
+
+                <!-- CLI 控制台 -->
+                <g class="card card-app" transform="translate(120, 50)">
+                    <rect width="280" height="60" rx="14"/>
+                    <text x="140" y="38" text-anchor="middle" class="text-title">🖥️ CLI 控制台</text>
+                </g>
+
+                <!-- API 接口 -->
+                <g class="card card-app" transform="translate(460, 50)">
+                    <rect width="280" height="60" rx="14"/>
+                    <text x="140" y="38" text-anchor="middle" class="text-title">🔌 API 接口</text>
+                </g>
+
+                <!-- Dashboard -->
+                <g class="card card-app" transform="translate(800, 50)">
+                    <rect width="280" height="60" rx="14"/>
+                    <text x="140" y="38" text-anchor="middle" class="text-title">📊 可视化 Dashboard</text>
+                </g>
+            </g>
+
+            <!-- 流动箭头 1 -->
+            <path d="M650 200 L650 230" class="flow-arrow"/>
+
+            <!-- ================= Agent 层 ================= -->
+            <g id="layer-agent" transform="translate(50, 240)">
+                <rect x="0" y="0" width="1200" height="200" class="layer-bg layer-agent-bg"/>
+                <text x="600" y="28" text-anchor="middle" class="text-label" letter-spacing="6">Agent 智能体层 Multi-Agent Layer</text>
+
+                <!-- Teacher Agent -->
+                <g class="card card-teacher" transform="translate(100, 60)">
+                    <rect width="420" height="110" rx="18"/>
+                    <text x="210" y="38" text-anchor="middle" class="text-title" style="fill:#E74C3C; font-size:18px;">⚔️ Teacher Agent</text>
+                    <text x="210" y="65" text-anchor="middle" class="text-sub" style="fill:#e8a598; font-size:12px;">攻击方 · 利益驱动 · 成本收益分析</text>
+                    <text x="210" y="88" text-anchor="middle" class="text-sub" style="fill:#955; font-size:11px;">argmax(收益 - 成本 - 风险)</text>
+                </g>
+
+                <!-- Student Agent -->
+                <g class="card card-student" transform="translate(680, 60)">
+                    <rect width="420" height="110" rx="18"/>
+                    <text x="210" y="38" text-anchor="middle" class="text-title" style="fill:#5DADE2; font-size:18px;">🛡️ Student Agent</text>
+                    <text x="210" y="65" text-anchor="middle" class="text-sub" style="fill:#a5d8e8; font-size:12px;">防御方 · 合规优先 · 误拦 ≤ 1%</text>
+                    <text x="210" y="88" text-anchor="middle" class="text-sub" style="fill:#569; font-size:11px;">confidence > threshold → BLOCK</text>
+                </g>
+
+                <!-- 对抗循环箭头 -->
+                <path class="attack-arrow" d="M530 100 Q590 100, 590 125 Q590 150, 530 150"/>
+                <path class="defense-arrow" d="M670 150 Q610 150, 610 125 Q610 100, 670 100"/>
+                <text x="600" y="118" text-anchor="middle" class="text-sub" style="fill:#E74C3C; font-size:11px;">⚡ 攻击</text>
+                <text x="600" y="148" text-anchor="middle" class="text-sub" style="fill:#3498DB; font-size:11px;">🛡️ 防御</text>
+            </g>
+
+            <!-- 流动箭头 2 -->
+            <path d="M650 450 L650 480" class="flow-arrow"/>
+
+            <!-- ================= 核心层 ================= -->
+            <g id="layer-core" transform="translate(50, 490)">
+                <rect x="0" y="0" width="1200" height="140" class="layer-bg layer-core-bg"/>
+                <text x="600" y="28" text-anchor="middle" class="text-label" letter-spacing="6">核心引擎层 Core Engine · Harness Engineering</text>
+
+                <!-- Constrain -->
+                <g class="card card-core" transform="translate(100, 55)">
+                    <rect width="300" height="75" rx="16"/>
+                    <text x="150" y="35" text-anchor="middle" class="text-title" style="fill:#58D68D;">⚙️ Constrain 约束层</text>
+                    <text x="150" y="58" text-anchor="middle" class="text-sub">人格定义 · 边界约束</text>
+                </g>
+
+                <!-- 连接箭头 -->
+                <path d="M410 92 L430 92" class="flow-arrow" style="stroke:#58D68D; animation-duration:1s;"/>
+
+                <!-- Verify -->
+                <g class="card card-core" transform="translate(440, 55)">
+                    <rect width="300" height="75" rx="16"/>
+                    <text x="150" y="35" text-anchor="middle" class="text-title" style="fill:#58D68D;">✅ Verify 验证层</text>
+                    <text x="150" y="58" text-anchor="middle" class="text-sub">指标验证 · 质量检查</text>
+                </g>
+
+                <!-- 连接箭头 -->
+                <path d="M750 92 L770 92" class="flow-arrow" style="stroke:#58D68D; animation-duration:1s;"/>
+
+                <!-- Correct -->
+                <g class="card card-core" transform="translate(780, 55)">
+                    <rect width="300" height="75" rx="16"/>
+                    <text x="150" y="35" text-anchor="middle" class="text-title" style="fill:#58D68D;">🔄 Correct 反馈层</text>
+                    <text x="150" y="58" text-anchor="middle" class="text-sub">反馈优化 · 自动迭代</text>
+                </g>
+            </g>
+
+            <!-- 流动箭头 3 -->
+            <path d="M650 640 L650 670" class="flow-arrow"/>
+
+            <!-- ================= 数据层 ================= -->
+            <g id="layer-data" transform="translate(50, 680)">
+                <rect x="0" y="0" width="1200" height="220" class="layer-bg layer-data-bg"/>
+                <text x="600" y="28" text-anchor="middle" class="text-label" letter-spacing="6">数据层 Data Layer</text>
+
+                <!-- 数据库 1 -->
+                <g transform="translate(100, 60)">
+                    <defs>
+                        <linearGradient id="db1" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" class="db-gradient" style="stop-color:#F5B041"/>
+                            <stop offset="100%" class="db-gradient" style="stop-color:#B7950B"/>
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="100" cy="25" rx="80" ry="18" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <rect x="20" y="25" width="160" height="65" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <ellipse cx="100" cy="90" rx="80" ry="18" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <text x="100" y="120" text-anchor="middle" class="text-main">攻击场景库</text>
+                    <text x="100" y="140" text-anchor="middle" class="text-sub" style="fill:#F5B041;">20+ scenarios</text>
+                </g>
+
+                <!-- 数据库 2 -->
+                <g transform="translate(370, 60)">
+                    <ellipse cx="100" cy="25" rx="80" ry="18" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <rect x="20" y="25" width="160" height="65" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <ellipse cx="100" cy="90" rx="80" ry="18" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <text x="100" y="120" text-anchor="middle" class="text-main">防御策略库</text>
+                    <text x="100" y="140" text-anchor="middle" class="text-sub" style="fill:#F5B041;">12+ strategies</text>
+                </g>
+
+                <!-- 数据库 3 -->
+                <g transform="translate(640, 60)">
+                    <ellipse cx="100" cy="25" rx="80" ry="18" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <rect x="20" y="25" width="160" height="65" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <ellipse cx="100" cy="90" rx="80" ry="18" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <text x="100" y="120" text-anchor="middle" class="text-main">对抗历史记录</text>
+                    <text x="100" y="140" text-anchor="middle" class="text-sub" style="fill:#F5B041;">round history</text>
+                </g>
+
+                <!-- 数据库 4 -->
+                <g transform="translate(910, 60)">
+                    <ellipse cx="100" cy="25" rx="80" ry="18" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <rect x="20" y="25" width="160" height="65" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <ellipse cx="100" cy="90" rx="80" ry="18" fill="url(#db1)" stroke="#F5B041" stroke-width="2"/>
+                    <text x="100" y="120" text-anchor="middle" class="text-main">指标数据监控</text>
+                    <text x="100" y="140" text-anchor="middle" class="text-sub" style="fill:#F5B041;">real-time metrics</text>
+                </g>
+            </g>
+
+            <!-- 反馈循环大箭头 -->
+            <path d="M1100 780 C1220 780, 1260 600, 1100 560" class="flow-arrow" style="stroke-width:3;"/>
+            <text x="1200" y="680" text-anchor="middle" class="text-sub" style="fill:#58D68D; transform:rotate(15deg);">🔄 反馈迭代 Loop</text>
+
+            <!-- 右侧图例 -->
+            <g transform="translate(1080, 80)">
+                <rect width="180" height="140" rx="14" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.15)"/>
+                <text x="90" y="30" text-anchor="middle" class="text-sub" style="fill:#7a8899; font-size:11px; letter-spacing:2px;">图例 LEGEND</text>
+
+                <rect x="25" y="48" width="24" height="24" rx="6" fill="#E74C3C" opacity="0.9"/>
+                <text x="58" y="66" class="text-sub" style="font-size:11px;">攻击方</text>
+
+                <rect x="25" y="82" width="24" height="24" rx="6" fill="#3498DB" opacity="0.9"/>
+                <text x="58" y="100" class="text-sub" style="font-size:11px;">防御方</text>
+
+                <rect x="25" y="116" width="24" height="24" rx="6" fill="#58D68D" opacity="0.9"/>
+                <text x="58" y="134" class="text-sub" style="font-size:11px;">核心引擎</text>
+            </g>
+
+            <!-- 核心公式 -->
+            <g transform="translate(50, 915)">
+                <rect width="600" height="55" rx="12" fill="rgba(231,76,60,0.12)" stroke="#E74C3C" stroke-width="1.5"/>
+                <text x="300" y="32" text-anchor="middle">
+                    <tspan class="text-sub" style="fill:#E74C3C; font-size:11px;">核心公式</tspan>
+                    <tspan x="300" dy="22" class="text-main" style="fill:#fff; font-size:13px;">作恶成本 > 作恶收益 → 黑灰产无利可图</tspan>
+                </text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>
