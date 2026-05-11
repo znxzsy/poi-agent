@@ -1,0 +1,9 @@
+# POI Harness 对抗沙箱 - 依赖
+
+# 基础依赖
+# (项目使用纯 Python 标准库，无额外依赖)
+
+# 可选依赖（用于扩展功能）
+# openai>=1.0.0  # 接入 GPT-4 作为 Agent
+# dashscope>=1.0.0  # 接入 Qwen-VL
+# graphviz>=0.20.0  # 生成架构图
