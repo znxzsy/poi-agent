@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POI Harness - 系统架构与模型更新流程图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #0a0e1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+        .diagram-container {
+            background: linear-gradient(180deg, #0f1428 0%, #0a0d18 100%);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 1px solid rgba(100,140,180,0.12);
+        }
+        .diagram-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            color: #e0e6ed;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .diagram-subtitle {
+            text-align: center;
+            color: #5a6a7e;
+            font-size: 11px;
+            margin-bottom: 30px;
+        }
+        svg { display: block; }
+
+        .card { transition: all 0.3s ease; }
+        .card-teacher { fill: rgba(180,60,50,0.15); stroke: rgba(220,80,70,0.5); stroke-width: 1; }
+        .card-student { fill: rgba(50,100,160,0.15); stroke: rgba(70,130,200,0.5); stroke-width: 1; }
+        .card-process { fill: rgba(80,140,100,0.12); stroke: rgba(100,180,130,0.4); stroke-width: 1; }
+        .card-data { fill: rgba(180,140,60,0.12); stroke: rgba(220,170,70,0.4); stroke-width: 1; }
+        .card-decision { fill: rgba(140,80,140,0.12); stroke: rgba(180,100,180,0.4); stroke-width: 1; }
+
+        .text-title { font-size: 12px; font-weight: 600; fill: #ffffff; }
+        .text-code { font-size: 10px; fill: rgba(255,255,255,0.5); font-family: 'Menlo', monospace; }
+        .text-label { font-size: 10px; fill: rgba(200,220,240,0.6); }
+        .text-value { font-size: 9px; fill: rgba(255,255,255,0.45); }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <h1 class="diagram-title">POI Harness 系统架构与模型更新机制</h1>
+        <p class="diagram-subtitle">Adversarial Learning Loop · Decision Flow · Model Evolution</p>
+
+        <svg width="1400" height="900" viewBox="0 0 1400 900">
+            <defs>
+                <marker id="m-arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6 Z" fill="#6a8aaf"/>
+                </marker>
+                <marker id="m-arr-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6 Z" fill="#dc5040"/>
+                </marker>
+                <marker id="m-arr-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6 Z" fill="#4682c8"/>
+                </marker>
+                <marker id="m-arr-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6 Z" fill="#64b482"/>
+                </marker>
+
+                <!-- 渐变定义 -->
+                <linearGradient id="grad-update" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#64b482;stop-opacity:0.8"/>
+                    <stop offset="100%" style="stop-color:#4682c8;stop-opacity:0.8"/>
+                </linearGradient>
+            </defs>
+
+            <!-- 背景网格 -->
+            <defs>
+                <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(100,140,180,0.04)" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="1400" height="900" fill="url(#grid)"/>
+
+            <!-- ============ 左侧：Teacher Agent 决策流程 ============ -->
+            <g id="teacher-flow" transform="translate(40, 60)">
+                <text x="0" y="0" class="text-title" style="fill:#dc5040; font-size:14px; letter-spacing:1px;">🔴 Teacher Agent 决策流程</text>
+
+                <!-- 场景选择 -->
+                <rect x="0" y="20" width="280" height="55" rx="6" class="card card-teacher"/>
+                <text x="140" y="40" text-anchor="middle" class="text-title">1. 场景选择</text>
+                <text x="140" y="60" text-anchor="middle" class="text-code">argmax(revenue - cost - risk)</text>
+
+                <line x1="140" y1="80" x2="140" y2="95" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- 成本计算 -->
+                <rect x="0" y="100" width="280" height="65" rx="6" class="card card-teacher"/>
+                <text x="140" y="120" text-anchor="middle" class="text-title">2. 成本收益分析</text>
+                <text x="140" y="140" text-anchor="middle" class="text-code">E[cost] = 时间 + 资金 + 技术 + 账号</text>
+                <text x="140" y="155" text-anchor="middle" class="text-code">E[revenue] = R_success×P_success - R_loss×P_fail</text>
+
+                <line x1="140" y1="170" x2="140" y2="185" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- 样本生成 -->
+                <rect x="0" y="190" width="280" height="55" rx="6" class="card card-teacher"/>
+                <text x="140" y="210" text-anchor="middle" class="text-title">3. 对抗样本生成</text>
+                <text x="140" y="230" text-anchor="middle" class="text-code">Prompt Engineering + Template</text>
+
+                <!-- 输出箭头 -->
+                <line x1="285" y1="217" x2="340" y2="217" stroke="#dc5040" stroke-width="1.5" marker-end="url(#m-arr-red)"/>
+                <text x="310" y="210" class="text-label">攻击样本</text>
+            </g>
+
+            <!-- ============ 中间：对抗执行 ============ -->
+            <g id="adversarial-core" transform="translate(400, 60)">
+                <text x="0" y="0" class="text-title" style="fill:#4682c8; font-size:14px; letter-spacing:1px;">⚔️ 对抗执行核心</text>
+
+                <!-- 攻击输入 -->
+                <rect x="0" y="20" width="260" height="45" rx="6" class="card card-data"/>
+                <text x="130" y="45" text-anchor="middle" class="text-title">攻击输入</text>
+                <text x="130" y="58" text-anchor="middle" class="text-value">type | scenario | payload</text>
+
+                <line x1="130" y1="70" x2="130" y2="85" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- 策略匹配 -->
+                <rect x="0" y="90" width="260" height="65" rx="6" class="card card-student"/>
+                <text x="130" y="110" text-anchor="middle" class="text-title">策略匹配引擎</text>
+                <text x="130" y="130" text-anchor="middle" class="text-code">match(attack_type, scenario)</text>
+                <text x="130" y="148" text-anchor="middle" class="text-value">返回：候选防御策略列表 [S₁, S₂, ...]</text>
+
+                <line x1="130" y1="160" x2="130" y2="175" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- 置信度计算 -->
+                <rect x="0" y="180" width="260" height="55" rx="6" class="card card-decision"/>
+                <text x="130" y="200" text-anchor="middle" class="text-title">置信度融合</text>
+                <text x="130" y="220" text-anchor="middle" class="text-code">confidence = avg(detection_rateᵢ)</text>
+
+                <line x1="130" y1="240" x2="130" y2="255" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- 决策门 -->
+                <rect x="40" y="260" width="180" height="50" rx="25" class="card card-decision"/>
+                <text x="130" y="280" text-anchor="middle" class="text-title">决策门限</text>
+                <text x="130" y="298" text-anchor="middle" class="text-code">if conf &gt; 0.85 → BLOCK</text>
+
+                <!-- 输出 -->
+                <line x1="130" y1="315" x2="130" y2="335" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+                <rect x="20" y="340" width="220" height="40" rx="6" class="card card-process"/>
+                <text x="130" y="360" text-anchor="middle" class="text-title">防御结果</text>
+                <text x="130" y="375" text-anchor="middle" class="text-value">BLOCK / PASS + confidence</text>
+
+                <!-- 右侧指标输出 -->
+                <line x1="265" y1="360" x2="310" y2="360" stroke="#64b482" stroke-width="1.5" marker-end="url(#m-arr-green)"/>
+            </g>
+
+            <!-- ============ 右侧：指标与反馈 ============ -->
+            <g id="metrics-feedback" transform="translate(730, 60)">
+                <text x="0" y="0" class="text-title" style="fill:#64b482; font-size:14px; letter-spacing:1px;">📊 指标计算与反馈</text>
+
+                <!-- 指标收集 -->
+                <rect x="0" y="20" width="240" height="55" rx="6" class="card card-process"/>
+                <text x="120" y="40" text-anchor="middle" class="text-title">指标收集</text>
+                <text x="120" y="58" text-anchor="middle" class="text-code">漏放率 | 防御率 | 误拦率</text>
+
+                <line x1="120" y1="80" x2="120" y2="95" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- 漏洞发现 -->
+                <rect x="0" y="100" width="240" height="55" rx="6" class="card card-teacher"/>
+                <text x="120" y="120" text-anchor="middle" class="text-title">漏洞发现</text>
+                <text x="120" y="140" text-anchor="middle" class="text-code">if miss_rate &gt; threshold → vuln</text>
+
+                <line x1="120" y1="160" x2="120" y2="175" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- 反馈生成 -->
+                <rect x="0" y="180" width="240" height="55" rx="6" class="card card-process"/>
+                <text x="120" y="200" text-anchor="middle" class="text-title">反馈信号生成</text>
+                <text x="120" y="220" text-anchor="middle" class="text-code">feedback = {vuln_type, severity, ...}</text>
+            </g>
+
+            <!-- ============ 底部：模型更新循环 ============ -->
+            <g id="model-update" transform="translate(40, 420)">
+                <text x="0" y="0" class="text-title" style="fill:#64b482; font-size:14px; letter-spacing:1px;">🔄 模型更新与进化机制</text>
+
+                <!-- Teacher 更新 -->
+                <rect x="0" y="25" width="320" height="90" rx="8" class="card card-teacher"/>
+                <text x="160" y="50" text-anchor="middle" class="text-title" style="fill:#dc5040;">Teacher 模型更新</text>
+                <text x="160" y="75" text-anchor="middle" class="text-code">更新攻击策略权重 wᵢ ← wᵢ + α×gradient</text>
+                <text x="160" y="95" text-anchor="middle" class="text-value">• 成功攻击 → 增加该策略权重</text>
+                <text x="160" y="110" text-anchor="middle" class="text-value">• 被防御 → 调整成本估计参数</text>
+
+                <!-- 连接箭头 -->
+                <path d="M320 70 L360 70" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- Student 更新 -->
+                <rect x="380" y="25" width="340" height="90" rx="8" class="card card-student"/>
+                <text x="550" y="50" text-anchor="middle" class="text-title" style="fill:#4682c8;">Student 模型更新</text>
+                <text x="550" y="75" text-anchor="middle" class="text-code">新增防御策略 | 更新检测率参数</text>
+                <text x="550" y="95" text-anchor="middle" class="text-value">• 发现新攻击类型 → 创建新防御策略</text>
+                <text x="550" y="110" text-anchor="middle" class="text-value">• 误拦率高 → 调整策略阈值</text>
+
+                <!-- 连接箭头 -->
+                <path d="M720 70 L760 70" stroke="#6a8aaf" stroke-width="1.5" marker-end="url(#m-arr)"/>
+
+                <!-- 知识库更新 -->
+                <rect x="780" y="25" width="300" height="90" rx="8" class="card card-data"/>
+                <text x="930" y="50" text-anchor="middle" class="text-title" style="fill:#dc9846;">知识库持久化</text>
+                <text x="930" y="75" text-anchor="middle" class="text-code">攻击场景库 | 防御策略库</text>
+                <text x="930" y="95" text-anchor="middle" class="text-value">• 新增攻击模式入库</text>
+                <text x="930" y="110" text-anchor="middle" class="text-value">• 对抗历史用于后续分析</text>
+            </g>
+
+            <!-- ============ 大循环箭头：完整学习闭环 ============ -->
+            <path d="M1050 250 C1150 250, 1180 350, 1050 380"
+                  fill="none" stroke="url(#grad-update)" stroke-width="2"
+                  stroke-dasharray="6,4" marker-end="url(#m-arr-green)" opacity="0.6"/>
+            <text x="1100" y="320" class="text-label" style="fill:#64b482;">模型迭代</text>
+
+            <!-- 从反馈到 Teacher 更新的连接 -->
+            <path d="M850 240 C850 320, 200 320, 200 380"
+                  fill="none" stroke="#dc5040" stroke-width="1.5"
+                  stroke-dasharray="5,3" marker-end="url(#m-arr-red)" opacity="0.5"/>
+            <text x="480" y="310" class="text-label" style="fill:#dc5040;">攻击策略调整</text>
+
+            <!-- 从反馈到 Student 更新的连接 -->
+            <path d="M850 245 C880 340, 600 340, 600 380"
+                  fill="none" stroke="#4682c8" stroke-width="1.5"
+                  stroke-dasharray="5,3" marker-end="url(#m-arr-blue)" opacity="0.5"/>
+            <text x="720" y="330" class="text-label" style="fill:#4682c8;">防御策略优化</text>
+
+            <!-- ============ 右下角：学习算法摘要 ============ -->
+            <g id="learning-summary" transform="translate(1050, 420)">
+                <rect x="0" y="25" width="310" height="180" rx="8"
+                      fill="rgba(100,140,180,0.08)" stroke="rgba(100,140,180,0.2)" stroke-width="1"/>
+                <text x="155" y="50" text-anchor="middle" class="text-title" style="font-size:13px;">📈 学习算法摘要</text>
+
+                <!-- Teacher 学习 -->
+                <text x="15" y="75" class="text-title" style="fill:#dc5040; font-size:11px;">Teacher 强化学习</text>
+                <text x="25" y="95" class="text-value" style="font-size:9.5px;">• 策略梯度：∇J(θ) = 𝔼[∇logπ(a|s)×Q(s,a)]</text>
+                <text x="25" y="112" class="text-value" style="font-size:9.5px;">• Q 值更新：Q(s,a) ← Q + α×(r + γ×maxQ' - Q)</text>
+                <text x="25" y="132" class="text-value" style="font-size:9.5px;">• ε-greedy 探索：10% 概率随机探索新攻击</text>
+
+                <!-- Student 学习 -->
+                <text x="15" y="155" class="text-title" style="fill:#4682c8; font-size:11px;">Student 在线学习</text>
+                <text x="25" y="175" class="text-value" style="font-size:9.5px;">• 增量更新：detection_rate ← 0.9×old + 0.1×new</text>
+                <text x="25" y="192" class="text-value" style="font-size:9.5px;">• 主动学习：低置信度样本 → 人工标注</text>
+            </g>
+
+            <!-- ============ 左下角：数据流总结 ============ -->
+            <g id="dataflow-summary" transform="translate(40, 580)">
+                <rect x="0" y="0" width="600" height="100" rx="8"
+                      fill="rgba(100,140,180,0.08)" stroke="rgba(100,140,180,0.2)" stroke-width="1"/>
+                <text x="300" y="25" text-anchor="middle" class="text-title" style="font-size:13px;">📊 单轮对抗数据流</text>
+
+                <text x="30" y="50" class="text-value" style="font-size:10px;">
+                    <tspan fill="#dc5040; font-weight:600;">① Teacher</tspan> 选择攻击 → 计算成本收益 → 生成样本
+                </text>
+                <text x="30" y="72" class="text-value" style="font-size:10px;">
+                    <tspan fill="#4682c8; font-weight:600;">② Student</tspan> 匹配策略 → 融合置信度 → 决策 BLOCK/PASS
+                </text>
+                <text x="30" y="94" class="text-value" style="font-size:10px;">
+                    <tspan fill="#64b482; font-weight:600;">③ System</tspan> 计算指标 → 发现漏洞 → 更新双方模型
+                </text>
+            </g>
+
+            <!-- ============ 底部中央：关键公式 ============ -->
+            <g id="formulas" transform="translate(670, 580)">
+                <rect x="0" y="0" width="350" height="100" rx="8"
+                      fill="rgba(100,140,180,0.08)" stroke="rgba(100,140,180,0.2)" stroke-width="1"/>
+                <text x="175" y="25" text-anchor="middle" class="text-title" style="font-size:13px;">🔑 核心公式</text>
+
+                <text x="30" y="50" class="text-code" style="font-size:10px; fill:#dc5040;">
+                    攻击决策：a* = argmax_a [ E[R(a)] - E[C(a)] - E[Risk(a)] ]
+                </text>
+                <text x="30" y="72" class="text-code" style="font-size:10px; fill:#4682c8;">
+                    防御决策：BLOCK if confidence &gt; τ, else PASS
+                </text>
+                <text x="30" y="94" class="text-code" style="font-size:10px; fill:#64b482;">
+                    模型更新：θ ← θ + α×∇J(θ)  (策略梯度上升)
+                </text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>
