@@ -87,5 +87,5 @@ window.addEventListener('scroll', () => {
     }
 });
 
-console.log('%.poi-agent v1.0', 'font-size: 20px; color: #E74C3C;');
+console.log('%cpoi-agent v1.0', 'font-size: 20px; color: #E74C3C;');
 console.log('%cMulti-Agent Adversarial Testing Framework', 'font-size: 14px; color: #3498DB;');
