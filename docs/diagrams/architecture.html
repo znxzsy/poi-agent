@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POI Harness 对抗沙箱 - 系统架构图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0d1117 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        .diagram-container {
+            background: rgba(255,255,255,0.02);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 100px rgba(52,152,219,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .diagram-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3498DB, #E74C3C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .diagram-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+        svg { filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3)); }
+
+        /* 层级样式 */
+        .layer-app { fill: url(#gradApp); }
+        .layer-agent { fill: url(#gradAgent); }
+        .layer-core { fill: url(#gradCore); }
+        .layer-data { fill: url(#gradData); }
+
+        /* 卡片样式 */
+        .card {
+            fill: rgba(255,255,255,0.08);
+            stroke-width: 2;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+        }
+        .card-app { stroke: #5DADE2; }
+        .card-teacher { stroke: #E74C3C; }
+        .card-student { stroke: #3498DB; }
+        .card-core { stroke: #58D68D; }
+        .card-data { stroke: #F5B041; }
+
+        /* 文字样式 */
+        .text-main {
+            font-size: 14px;
+            font-weight: 600;
+            fill: #fff;
+        }
+        .text-sub {
+            font-size: 11px;
+            fill: #aaa;
+        }
+        .text-title {
+            font-size: 16px;
+            font-weight: 700;
+            fill: #fff;
+        }
+
+        /* 箭头动画 */
+        .arrow-line {
+            stroke: url(#arrowGrad);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 10;
+            animation: dash 1s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -20; }
+        }
+
+        /* 光晕效果 */
+        .glow-teacher {
+            filter: drop-shadow(0 0 20px rgba(231,76,60,0.5));
+        }
+        .glow-student {
+            filter: drop-shadow(0 0 20px rgba(52,152,219,0.5));
+        }
+        .glow-core {
+            filter: drop-shadow(0 0 15px rgba(88,214,141,0.4));
+        }
+
+        /* 对抗循环箭头 */
+        .adversarial-arrow {
+            stroke-width: 3;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+        .attack-arrow { stroke: #E74C3C; filter: drop-shadow(0 0 8px rgba(231,76,60,0.6)); }
+        .defense-arrow { stroke: #3498DB; filter: drop-shadow(0 0 8px rgba(52,152,219,0.6)); stroke-dasharray: 5,3; }
+
+        /* 数据层图标 */
+        .db-icon {
+            fill: url(#gradDB);
+            stroke: #F5B041;
+            stroke-width: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <h1 class="diagram-title">🎯 POI Harness 对抗沙箱</h1>
+        <p class="diagram-subtitle">Multi-Agent Adversarial Testing Framework · Harness Engineering 三支柱</p>
+
+        <svg width="1200" height="900" viewBox="0 0 1200 900">
+            <defs>
+                <!-- 渐变定义 -->
+                <linearGradient id="gradApp" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#1a4f6a;stop-opacity:0.3"/>
+                    <stop offset="100%" style="stop-color:#2d5a7a;stop-opacity:0.3"/>
+                </linearGradient>
+                <linearGradient id="gradAgent" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#5a1a4a;stop-opacity:0.3"/>
+                    <stop offset="100%" style="stop-color:#4a2d5a;stop-opacity:0.3"/>
+                </linearGradient>
+                <linearGradient id="gradCore" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#1a5a3a;stop-opacity:0.3"/>
+                    <stop offset="100%" style="stop-color:#2d5a4a;stop-opacity:0.3"/>
+                </linearGradient>
+                <linearGradient id="gradData" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#5a4a1a;stop-opacity:0.3"/>
+                    <stop offset="100%" style="stop-color:#5a5a2d;stop-opacity:0.3"/>
+                </linearGradient>
+                <linearGradient id="gradDB" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#F5B041"/>
+                    <stop offset="100%" style="stop-color:#D68910"/>
+                </linearGradient>
+                <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#3498DB"/>
+                    <stop offset="100%" style="stop-color:#58D68D"/>
+                </linearGradient>
+
+                <!-- 箭头标记 -->
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#3498DB"/>
+                </marker>
+                <marker id="arrowheadRed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#E74C3C"/>
+                </marker>
+            </defs>
+
+            <!-- 背景网格 -->
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+            </pattern>
+            <rect width="1200" height="900" fill="url(#grid)"/>
+
+            <!-- === 应用层 === -->
+            <g id="layer-app">
+                <rect x="100" y="40" width="1000" height="100" rx="16" class="layer-app"/>
+                <text x="600" y="65" text-anchor="middle" class="text-sub" style="letter-spacing:4px;">应用层 APPLICATION LAYER</text>
+
+                <!-- CLI 控制台 -->
+                <g class="card card-app glow-core" transform="translate(180, 75)">
+                    <rect width="240" height="55" rx="12"/>
+                    <text x="120" y="35" text-anchor="middle" class="text-title">CLI 控制台</text>
+                </g>
+
+                <!-- API 接口 -->
+                <g class="card card-app glow-core" transform="translate(480, 75)">
+                    <rect width="240" height="55" rx="12"/>
+                    <text x="120" y="35" text-anchor="middle" class="text-title">API 接口</text>
+                </g>
+
+                <!-- Dashboard -->
+                <g class="card card-app glow-core" transform="translate(780, 75)">
+                    <rect width="240" height="55" rx="12"/>
+                    <text x="120" y="35" text-anchor="middle" class="text-title">可视化 Dashboard</text>
+                </g>
+            </g>
+
+            <!-- 向下箭头 -->
+            <path d="M600 150 L600 190" class="arrow-line"/>
+
+            <!-- === Agent 层 === -->
+            <g id="layer-agent">
+                <rect x="100" y="200" width="1000" height="180" rx="16" class="layer-agent"/>
+                <text x="600" y="225" text-anchor="middle" class="text-sub" style="letter-spacing:4px;">Agent 智能体层 AGENT LAYER · Multi-Agent</text>
+
+                <!-- Teacher Agent -->
+                <g class="card card-teacher glow-teacher" transform="translate(200, 250)">
+                    <rect width="320" height="100" rx="16"/>
+                    <text x="160" y="40" text-anchor="middle" class="text-title" style="fill:#E74C3C;">🔴 Teacher Agent</text>
+                    <text x="160" y="65" text-anchor="middle" class="text-sub">攻击方 · 利益驱动 · 成本收益分析</text>
+                    <text x="160" y="85" text-anchor="middle" class="text-sub" style="fill:#888;">argmax(收益 - 成本 - 风险)</text>
+                </g>
+
+                <!-- Student Agent -->
+                <g class="card card-student glow-student" transform="translate(680, 250)">
+                    <rect width="320" height="100" rx="16"/>
+                    <text x="160" y="40" text-anchor="middle" class="text-title" style="fill:#3498DB;">🔵 Student Agent</text>
+                    <text x="160" y="65" text-anchor="middle" class="text-sub">防御方 · 合规优先 · 误拦≤1%</text>
+                    <text x="160" y="85" text-anchor="middle" class="text-sub" style="fill:#888;">confidence > threshold → BLOCK</text>
+                </g>
+
+                <!-- 对抗循环箭头 -->
+                <path class="adversarial-arrow attack-arrow" d="M530 280 Q560 280, 560 300 Q560 320, 530 320"/>
+                <path class="adversarial-arrow defense-arrow" d="M670 320 Q640 320, 640 300 Q640 280, 670 280"/>
+                <text x="600" y="295" text-anchor="middle" class="text-sub" style="fill:#E74C3C;">攻击</text>
+                <text x="600" y="315" text-anchor="middle" class="text-sub" style="fill:#3498DB;">防御</text>
+            </g>
+
+            <!-- 向下箭头 -->
+            <path d="M600 390 L600 420" class="arrow-line"/>
+
+            <!-- === 核心层 === -->
+            <g id="layer-core">
+                <rect x="100" y="430" width="1000" height="140" rx="16" class="layer-core"/>
+                <text x="600" y="455" text-anchor="middle" class="text-sub" style="letter-spacing:4px;">核心引擎层 CORE ENGINE · Harness Engineering</text>
+
+                <!-- Constrain -->
+                <g class="card card-core glow-core" transform="translate(180, 480)">
+                    <rect width="260" height="70" rx="14"/>
+                    <text x="130" y="30" text-anchor="middle" class="text-title" style="fill:#58D68D;">Constrain 约束层</text>
+                    <text x="130" y="52" text-anchor="middle" class="text-sub">人格定义 · 边界约束</text>
+                </g>
+
+                <!-- 箭头 -->
+                <path d="M450 515 L470 515" class="arrow-line"/>
+
+                <!-- Verify -->
+                <g class="card card-core glow-core" transform="translate(480, 480)">
+                    <rect width="260" height="70" rx="14"/>
+                    <text x="130" y="30" text-anchor="middle" class="text-title" style="fill:#58D68D;">Verify 验证层</text>
+                    <text x="130" y="52" text-anchor="middle" class="text-sub">指标验证 · 质量检查</text>
+                </g>
+
+                <!-- 箭头 -->
+                <path d="M750 515 L770 515" class="arrow-line"/>
+
+                <!-- Correct -->
+                <g class="card card-core glow-core" transform="translate(780, 480)">
+                    <rect width="260" height="70" rx="14"/>
+                    <text x="130" y="30" text-anchor="middle" class="text-title" style="fill:#58D68D;">Correct 反馈层</text>
+                    <text x="130" y="52" text-anchor="middle" class="text-sub">反馈优化 · 自动迭代</text>
+                </g>
+            </g>
+
+            <!-- 向下箭头 -->
+            <path d="M600 580 L600 620" class="arrow-line"/>
+
+            <!-- === 数据层 === -->
+            <g id="layer-data">
+                <rect x="100" y="630" width="1000" height="180" rx="16" class="layer-data"/>
+                <text x="600" y="655" text-anchor="middle" class="text-sub" style="letter-spacing:4px;">数据层 DATA LAYER</text>
+
+                <!-- 数据库图标 1 -->
+                <g transform="translate(200, 680)">
+                    <ellipse cx="60" cy="20" rx="60" ry="15" class="db-icon"/>
+                    <rect x="0" y="20" width="120" height="50" class="db-icon"/>
+                    <ellipse cx="60" cy="70" rx="60" ry="15" class="db-icon"/>
+                    <text x="60" y="95" text-anchor="middle" class="text-sub">攻击场景库</text>
+                    <text x="60" y="110" text-anchor="middle" class="text-sub" style="fill:#F5B041;">20+ scenarios</text>
+                </g>
+
+                <!-- 数据库图标 2 -->
+                <g transform="translate(420, 680)">
+                    <ellipse cx="60" cy="20" rx="60" ry="15" class="db-icon"/>
+                    <rect x="0" y="20" width="120" height="50" class="db-icon"/>
+                    <ellipse cx="60" cy="70" rx="60" ry="15" class="db-icon"/>
+                    <text x="60" y="95" text-anchor="middle" class="text-sub">防御策略库</text>
+                    <text x="60" y="110" text-anchor="middle" class="text-sub" style="fill:#F5B041;">12+ strategies</text>
+                </g>
+
+                <!-- 数据库图标 3 -->
+                <g transform="translate(640, 680)">
+                    <ellipse cx="60" cy="20" rx="60" ry="15" class="db-icon"/>
+                    <rect x="0" y="20" width="120" height="50" class="db-icon"/>
+                    <ellipse cx="60" cy="70" rx="60" ry="15" class="db-icon"/>
+                    <text x="60" y="95" text-anchor="middle" class="text-sub">对抗历史记录</text>
+                    <text x="60" y="110" text-anchor="middle" class="text-sub" style="fill:#F5B041;">round history</text>
+                </g>
+
+                <!-- 数据库图标 4 -->
+                <g transform="translate(860, 680)">
+                    <ellipse cx="60" cy="20" rx="60" ry="15" class="db-icon"/>
+                    <rect x="0" y="20" width="120" height="50" class="db-icon"/>
+                    <ellipse cx="60" cy="70" rx="60" ry="15" class="db-icon"/>
+                    <text x="60" y="95" text-anchor="middle" class="text-sub">指标数据监控</text>
+                    <text x="60" y="110" text-anchor="middle" class="text-sub" style="fill:#F5B041;">real-time metrics</text>
+                </g>
+            </g>
+
+            <!-- 底部反馈循环 -->
+            <path class="arrow-line" d="M950 720 C1080 720, 1120 500, 950 500"/>
+            <text x="1070" y="600" text-anchor="middle" class="text-sub" style="transform:rotate(90deg);">反馈迭代 Feedback Loop</text>
+
+            <!-- 右侧图例 -->
+            <g transform="translate(1020, 40)">
+                <rect width="160" height="150" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+                <text x="80" y="30" text-anchor="middle" class="text-sub" style="fill:#888;">图例 Legend</text>
+
+                <rect x="20" y="45" width="20" height="20" rx="4" fill="#E74C3C" opacity="0.8"/>
+                <text x="50" y="60" class="text-sub">攻击方</text>
+
+                <rect x="20" y="75" width="20" height="20" rx="4" fill="#3498DB" opacity="0.8"/>
+                <text x="50" y="90" class="text-sub">防御方</text>
+
+                <rect x="20" y="105" width="20" height="20" rx="4" fill="#58D68D" opacity="0.8"/>
+                <text x="50" y="120" class="text-sub">核心引擎</text>
+
+                <ellipse cx="30" cy="145" rx="10" ry="8" fill="#F5B041" opacity="0.8"/>
+                <text x="50" y="150" class="text-sub">数据存储</text>
+            </g>
+
+            <!-- 核心公式 -->
+            <g transform="translate(80, 840)">
+                <rect width="400" height="50" rx="10" fill="rgba(231,76,60,0.1)" stroke="#E74C3C" stroke-width="1"/>
+                <text x="200" y="25" text-anchor="middle" class="text-sub" style="fill:#E74C3C;">
+                    <tspan style="font-size:12px;">核心公式</tspan>
+                    <tspan x="200" dy="18" style="font-size:14px;fill:#fff;">作恶成本 > 作恶收益 → 黑灰产无利可图</tspan>
+                </text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>
