@@ -1,266 +1,123 @@
-# poi-agent
+<p align="right"><strong>English</strong> · <a href="README_ZH.md">中文</a></p>
 
-> 多智能体对抗测试框架 · 内容风控场景
+<p align="center">
+  <img src="assets/hero.svg" alt="poi-agent: multi-agent adversarial testing harness" width="100%">
+</p>
 
-基于 Harness Engineering 的 POI 风控对抗系统，通过 Teacher/Student 双智能体持续对抗，自动发现风控漏洞并迭代防御策略。
+<p align="center">
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white" alt="Python 3.9+"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-111827" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/mode-simulation%20only-4C80AE" alt="Simulation only">
+</p>
 
-```
-Teacher（攻击方）── 生成──→ 对抗样本
-                                │
-                                ▼
-Student（防御方）←── 响应─── 对抗样本
-                                │
-                                ▼
-                           评估 → 修复
-                                │
-                                ▼
-                        迭代至收敛
-```
+## A test harness for defenses that must survive adaptation
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+`poi-agent` is a compact research framework for repeated attacker–defender experiments in content-risk systems. A Teacher agent selects and evolves test scenarios; a Student agent applies defense policies; the harness records the outcome, measures misses and false positives, and feeds the evidence into the next round.
 
----
+It is designed for controlled evaluation and policy iteration—not for operating attacks against live services.
 
-## 安装
+<p align="center">
+  <img src="docs/diagrams/adversarial_flow.png" alt="One adversarial testing round" width="96%">
+</p>
+
+## What the repository models
+
+| Component | Role |
+|---|---|
+| **Teacher agent** | Chooses the highest-value test scenario from expected return, execution cost, and risk. |
+| **Student agent** | Applies available defenses and returns a structured `BLOCK` or `PASS` decision. |
+| **Harness engine** | Constrains agent behavior, verifies round metrics, and records corrective feedback. |
+| **Scenario models** | Represent cost, expected revenue, risk, attack type, and operating context. |
+| **Round history** | Preserves the evidence needed to compare policies across iterations. |
+
+<p align="center">
+  <img src="docs/diagrams/system_architecture.png" alt="poi-agent system architecture" width="96%">
+</p>
+
+## Quick start
 
 ```bash
 git clone https://github.com/znxzsy/poi-agent.git
 cd poi-agent
-pip install graphviz  # 架构图生成
-```
-
-## 快速开始
-
-```bash
 python main.py
 ```
 
-运行 10 轮对抗测试，Teacher 生成攻击样本，Student 进行防御决策。
+Run the test suite:
 
 ```bash
-python -m pytest tests/ -v
+python -m pytest tests -q
 ```
 
-运行 31 个单元测试。
-
-## 架构图
-
-![系统架构](docs/diagrams/system_architecture.png)
-
-## 技术架构
-
-### Harness Engineering 三支柱
-
-| 层级 | 职责 |
-|------|------|
-| **Constrain（约束层）** | 定义 Teacher/Student 人格与行为边界 |
-| **Verify（验证层）** | 检查智能体输出是否达到质量阈值 |
-| **Correct（反馈层）** | 修复问题并反馈到下一轮迭代 |
-
-### 核心组件
-
-```
-poi-agent/
-├── main.py             # 编排入口
-├── core/
-│   └── models.py       # 数据模型：成本/收益/风险/场景
-├── agents/
-│   ├── teacher.py      # Teacher 智能体（攻击方）
-│   └── student.py      # Student 智能体（防御方）
-├── generate_diagrams.py  # 架构图生成器
-├── tests/              # 单元测试
-└── website/            # 项目网站
-```
-
-## API 参考
-
-### 核心模型
-
-**EvilCostModel（作恶成本四维模型）**
-
-```python
-from core.models import EvilCostModel
-
-cost = EvilCostModel(
-    # 时间成本（分钟）
-    registration_time=10,
-    operation_time=5,
-    waiting_time=0,
-    # 资金成本（元）
-    account_cost=0.1,
-    device_cost=0,
-    ip_cost=0,
-    # 技术成本（1-10 难度等级）
-    bypass_difficulty=2,
-    tool_dev_cost=0,
-    # 账号成本
-    ban_rate=0.3,
-    reuse_count=10,
-)
-
-cost.total_time_cost()       # 总时间成本
-cost.total_money_cost()      # 总资金成本
-cost.tech_difficulty()       # 技术难度均值
-cost.lifecycle_value()       # 账号生命周期价值
-```
-
-**EvilRevenue（作恶收益模型）**
-
-```python
-from core.models import EvilRevenue
-
-revenue = EvilRevenue(
-    success_revenue=10000,   # 成功收益
-    success_rate=0.7,        # 成功率
-    failure_loss=1000,       # 失败损失
-    failure_rate=0.3,        # 失败率
-)
-revenue.expected_revenue()   # 期望收益 = 7000.0 - 300.0 = 6700.0
-```
-
-**RiskCost（风险成本模型）**
-
-```python
-from core.models import RiskCost
-
-risk = RiskCost(
-    ban_probability=0.3,     # 被封概率
-    ban_loss=500,            # 封禁损失
-    legal_risk=0.1,          # 法律风险
-    legal_loss=10000,        # 法律损失
-)
-risk.expected_cost()         # 期望风险成本
-```
-
-**AttackScenario（攻击场景）**
-
-```python
-from core.models import AttackScenario, AttackType, Scenario
-
-attack = AttackScenario(
-    name="AIGC 生成图",
-    attack_type=AttackType.IMAGE_FORGERY,
-    scenario=Scenario.UGC,
-    description="使用 AI 生成虚假门店图片",
-    cost=EvilCostModel(operation_time=5, account_cost=0.1, bypass_difficulty=2),
-    revenue=EvilRevenue(success_revenue=10000, success_rate=0.7),
-)
-attack.is_profitable()       # 是否有利可图（基于成本-收益分析）
-```
-
-**DefenseStrategy（防御策略）**
-
-```python
-from core.models import DefenseStrategy, Scenario
-
-strategy = DefenseStrategy(
-    name="AIGC 检测",
-    description="检测 AI 生成的虚假图片",
-    target_scenarios=[Scenario.UGC],
-    detection_rate=0.88,
-    false_positive_rate=0.008,
-)
-strategy.is_effective()      # 是否有效（检测率≥90% 且误报率≤1%）
-```
-
-### 智能体
-
-**TeacherAgent（攻击方）**
-
-```python
-from agents.teacher import TeacherAgent
-from core.models import Scenario
-
-teacher = TeacherAgent()
-
-# 选择最优攻击方式（argmax: 收益 - 成本 - 风险）
-best_attack = teacher.select_attack(scenario=Scenario.UGC)
-
-# 生成对抗样本详情
-sample = teacher.generate_adversarial_sample(best_attack)
-
-# 基于防御反馈演进攻击方式
-evolved = teacher.evolve_attack(best_attack, defense_info={"detected": True})
-```
-
-**StudentAgent（防御方）**
-
-```python
-from agents.student import StudentAgent
-
-student = StudentAgent()
-
-# 防御决策
-result = student.defense_decision(attack)
-# 返回: {"action": "BLOCK"/"PASS", "confidence": 0.88, "strategies": [...]}
-
-# 从新攻击中学习
-new_strategy = student.learn_from_attack(attack, result)
-
-# 更新策略参数
-student.update_strategy("AIGC 检测", new_detection_rate=0.92, new_fp_rate=0.005)
-```
-
-### 编排
-
-**POIHarnessSandbox（对抗沙箱）**
-
-```python
-from main import POIHarnessSandbox
-
-sandbox = POIHarnessSandbox()
-
-# 运行单轮对抗
-round_result = sandbox.run_round()
-
-# 运行多轮对抗
-sandbox.run_multiple_rounds(num_rounds=10)
-```
-
-## 扩展
-
-### 添加攻击场景
-
-编辑 `agents/teacher.py`，在 `_init_attack_scenarios` 方法中添加：
-
-```python
-self.attack_scenarios.append(AttackScenario(
-    name="新攻击名称",
-    attack_type=AttackType.IMAGE_FORGERY,
-    scenario=Scenario.UGC,
-    description="攻击描述",
-    cost=EvilCostModel(...),
-    revenue=EvilRevenue(...),
-))
-```
-
-### 添加防御策略
-
-编辑 `agents/student.py`，在 `_init_defense_strategies` 方法中添加：
-
-```python
-self.defense_strategies.append(DefenseStrategy(
-    name="新防御名称",
-    description="防御描述",
-    target_scenarios=[Scenario.UGC],
-    detection_rate=0.95,
-    false_positive_rate=0.005,
-))
-```
-
-## 生成架构图
+Regenerate the English figures used by the project pages:
 
 ```bash
+pip install graphviz
 python generate_diagrams.py
 ```
 
-在 `docs/diagrams/` 下生成 4 张专业架构图：
-- 系统架构（四层架构：应用/智能体/核心/数据）
-- 成本模型（四维成本可视化）
-- 对抗流程（四阶段对抗流程）
-- 演进预测（攻击演进时间线）
+The Graphviz system executable must also be available on your machine.
 
-## 许可证
+## Round lifecycle
 
-MIT
+1. Select a scenario by expected return minus execution cost and risk.
+2. Materialize a structured adversarial test case.
+3. Ask the Student agent for a defense decision.
+4. Measure defense rate, miss rate, and policy quality.
+5. Record the failure and update the next test round.
+
+The loop makes model and policy changes comparable. A better defense should improve measured outcomes on the same scenario family—not merely produce a more convincing explanation.
+
+## Core data models
+
+```python
+from core.models import (
+    AttackScenario,
+    AttackType,
+    EvilCostModel,
+    EvilRevenue,
+    RiskCost,
+    Scenario,
+)
+
+case = AttackScenario(
+    name="Synthetic media integrity test",
+    attack_type=AttackType.IMAGE_FORGERY,
+    scenario=Scenario.UGC,
+    description="Controlled test case for a visual integrity policy",
+    cost=EvilCostModel(operation_time=5, bypass_difficulty=2),
+    revenue=EvilRevenue(success_revenue=100, success_rate=0.4),
+    risk=RiskCost(ban_probability=0.5, ban_loss=100),
+)
+
+print(case.is_profitable())
+```
+
+The cost model separates time, money, technical difficulty, account lifecycle, and risk. This keeps scenario selection explicit and testable instead of burying it in an agent prompt.
+
+<p align="center">
+  <img src="docs/diagrams/cost_model.png" alt="Attack economics model" width="92%">
+</p>
+
+## Repository map
+
+```text
+poi-agent/
+├── agents/             # Teacher and Student policies
+├── core/               # Typed scenario, cost, revenue, and risk models
+├── feedback/           # Round-level feedback records
+├── scenarios/          # Scenario definitions
+├── verification/       # Defense strategies and checks
+├── tests/              # Unit tests
+├── docs/diagrams/      # English project figures
+├── generate_diagrams.py
+└── main.py             # Experiment orchestrator
+```
+
+## Research scope
+
+This public repository is a simulation harness. Its scenarios are illustrative, its metrics are local, and it does not include production credentials, internal datasets, live endpoints, or operational bypass instructions. Use it to study evaluation design, agent feedback loops, and defense-policy regression under controlled conditions.
+
+## Contact
+
+For research collaboration or a private implementation discussion, contact **znxzsy** on WeChat.
+
