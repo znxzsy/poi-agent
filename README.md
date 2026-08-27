@@ -6,7 +6,6 @@
 
 <p align="center">
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white" alt="Python 3.9+"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-111827" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/mode-simulation%20only-4C80AE" alt="Simulation only">
 </p>
 
@@ -120,4 +119,3 @@ This public repository is a simulation harness. Its scenarios are illustrative, 
 ## Contact
 
 For research collaboration or a private implementation discussion, contact **znxzsy** on WeChat.
-
